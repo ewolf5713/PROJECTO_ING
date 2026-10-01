@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class ValidarUS {
+public class ValidarUS_HU1 {
     private static final Pattern GMAIL = Pattern.compile("^[A-Za-z0-9._%+-]+@gmail\\.com$");
 
     public static List<String> validar(String Nombre, String Gmail, String Contrasena) {

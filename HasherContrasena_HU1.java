@@ -3,7 +3,7 @@ import javax.crypto.spec.PBEKeySpec;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-public class HasherContrasena {
+public class HasherContrasena_HU1 {
     public static String hash(String contrasena) throws Exception {
         byte[] salt = new byte[16];
         new SecureRandom().nextBytes(salt);
