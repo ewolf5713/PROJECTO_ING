@@ -3,8 +3,10 @@ import java.util.List;
 public class Registro_HU1 {
     private final RepoUsuario_HU1 repo;
 
+    //inicializa el registro atandolo al repositorio
     public Registro_HU1(RepoUsuario_HU1 repo) { this.repo = repo; }
 
+    //los guarda si es valido en los campos no vacios o duplicados
     public List<String> registro(String nombre, String gmail, String contrasena) throws Exception {
         List<String> error = ValidarUS_HU1.validar(nombre, gmail, contrasena);
         if (!error.isEmpty()) return error;
