@@ -27,6 +27,13 @@ mvn package
 java -jar target/rurex-transporte-1.0-SNAPSHOT.jar
 ```
 
+## Demo de estado de recorrido (HU-008)
+
+La demo Swing es independiente de la aplicación principal y usa un verificador de reserva en memoria:
+```bash
+mvn compile && java -cp target/classes com.rurex.TripDemo
+```
+
 ## Cuentas demo para pruebas
 - Admin: `admin@ucv.ve` / `Admin123`
 - Estudiante: `estudiante@ucv.ve` / `Estudiante123`
