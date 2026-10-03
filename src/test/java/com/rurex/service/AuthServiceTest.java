@@ -24,7 +24,7 @@ public class AuthServiceTest {
                 "Daniel Quiaro",
                 "daniel.quiaro@ciens.ucv.ve",
                 "V-32080586",
-                UserRole.ADMINISTRADOR,
+                UserRole.ESTUDIANTE,
                 "",
                 "MiClaveSegura2026"
         );
@@ -32,10 +32,25 @@ public class AuthServiceTest {
         Optional<User> byEmail = authService.autenticar("daniel.quiaro@ciens.ucv.ve", "MiClaveSegura2026");
         assertTrue(byEmail.isPresent());
         assertEquals("Daniel Quiaro", byEmail.get().getNombreCompleto());
-        assertEquals(UserRole.ADMINISTRADOR, byEmail.get().getRol());
+        assertEquals(UserRole.ESTUDIANTE, byEmail.get().getRol());
 
         Optional<User> byIdCard = authService.autenticar("V-32080586", "MiClaveSegura2026");
         assertTrue(byIdCard.isPresent());
+    }
+
+    @Test
+    void testRejectAdminSelfRegistration() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                authService.registrarUsuario(
+                        "Hacker Admin",
+                        "hacker@ucv.ve",
+                        "V-99999999",
+                        UserRole.ADMINISTRADOR,
+                        "",
+                        "Clave123"
+                )
+        );
+        assertTrue(ex.getMessage().contains("No se permite el autorregistro"));
     }
 
     @Test

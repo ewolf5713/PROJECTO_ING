@@ -30,7 +30,10 @@ public class ItineraryService {
 
         TransportUnit unidad = fleetService.validarUnidadParaItinerario(placa);
 
-        int cuposFinal = (cupos != null && cupos > 0) ? cupos : unidad.getCapacidad();
+        int cuposFinal = (cupos == null) ? unidad.getCapacidad() : cupos;
+        if (cuposFinal <= 0) {
+            throw new IllegalArgumentException("Los cupos deben ser mayores a cero.");
+        }
         if (cuposFinal > unidad.getCapacidad()) {
             throw new IllegalArgumentException("Los cupos superan la capacidad maxima del bus (" + unidad.getCapacidad() + ").");
         }

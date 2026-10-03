@@ -19,7 +19,7 @@ public class Main {
 
             FleetController fleetController = new FleetController(fleetService);
             ItineraryController itineraryController = new ItineraryController(itineraryService);
-            AuthController authController = new AuthController(authService, fleetController, itineraryController);
+            AuthController authController = new AuthController(authService, fleetController, itineraryController, fleetService, itineraryService);
 
             LoginView loginView = new LoginView(authController);
             loginView.setVisible(true);

@@ -3,6 +3,8 @@ package com.rurex.controller;
 import com.rurex.model.User;
 import com.rurex.model.UserRole;
 import com.rurex.service.AuthService;
+import com.rurex.service.FleetService;
+import com.rurex.service.ItineraryService;
 import com.rurex.view.AdminDashboardView;
 import com.rurex.view.LoginView;
 import com.rurex.view.RegisterView;
@@ -17,11 +19,15 @@ public class AuthController {
     private RegisterView registerView;
     private final FleetController fleetController;
     private final ItineraryController itineraryController;
+    private final FleetService fleetService;
+    private final ItineraryService itineraryService;
 
-    public AuthController(AuthService authService, FleetController fleetController, ItineraryController itineraryController) {
+    public AuthController(AuthService authService, FleetController fleetController, ItineraryController itineraryController, FleetService fleetService, ItineraryService itineraryService) {
         this.authService = authService;
         this.fleetController = fleetController;
         this.itineraryController = itineraryController;
+        this.fleetService = fleetService;
+        this.itineraryService = itineraryService;
     }
 
     public void setLoginView(LoginView loginView) {
@@ -40,7 +46,7 @@ public class AuthController {
             loginView.dispose();
 
             if (user.getRol() == UserRole.ADMINISTRADOR) {
-                AdminDashboardView dashboard = new AdminDashboardView(user, this, fleetController, itineraryController);
+                AdminDashboardView dashboard = new AdminDashboardView(user, this, fleetController, itineraryController, fleetService, itineraryService);
                 dashboard.setVisible(true);
             } else {
                 JOptionPane.showMessageDialog(null, "Panel de usuario en construccion para siguiente sprint.", "Info", JOptionPane.INFORMATION_MESSAGE);

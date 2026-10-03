@@ -49,14 +49,20 @@ public class FleetService {
         return lista;
     }
 
-    public synchronized TransportUnit editarUnidad(String placa, String modelo, int capacidad, OperationalStatus nuevoEstado) {
+    public synchronized TransportUnit editarUnidad(String placa, String modelo, Integer capacidad, OperationalStatus nuevoEstado) {
         TransportUnit u = findByPlaca(placa)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontro la unidad con placa " + placa));
 
-        if (modelo != null && !modelo.isBlank()) {
+        if (modelo != null) {
+            if (modelo.isBlank()) {
+                throw new IllegalArgumentException("El modelo no puede estar vacio.");
+            }
             u.setModelo(modelo.trim());
         }
-        if (capacidad > 0) {
+        if (capacidad != null) {
+            if (capacidad <= 0) {
+                throw new IllegalArgumentException("La capacidad debe ser mayor a cero.");
+            }
             u.setCapacidad(capacidad);
         }
         if (nuevoEstado != null) {
@@ -66,7 +72,7 @@ public class FleetService {
     }
 
     public synchronized TransportUnit actualizarEstado(String placa, OperationalStatus nuevoEstado) {
-        return editarUnidad(placa, null, 0, nuevoEstado);
+        return editarUnidad(placa, null, null, nuevoEstado);
     }
 
     public synchronized Optional<TransportUnit> findByPlaca(String placa) {
@@ -81,6 +87,14 @@ public class FleetService {
             throw new IllegalArgumentException("La unidad " + u.getPlaca() + " esta " + u.getEstado().getLabel() + " y no puede asignarse.");
         }
         return u;
+    }
+
+    public synchronized int getCantidadActivas() {
+        return filtrarPorEstado(OperationalStatus.ACTIVA).size();
+    }
+
+    public synchronized int getCantidadMantenimiento() {
+        return filtrarPorEstado(OperationalStatus.EN_MANTENIMIENTO).size();
     }
 
     private void cargarUnidadesDemo() {

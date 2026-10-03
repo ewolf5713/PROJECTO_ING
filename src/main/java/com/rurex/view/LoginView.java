@@ -64,7 +64,7 @@ public class LoginView extends JFrame {
 
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 16, 0);
-        txtUser = new JTextField("admin@ucv.ve");
+        txtUser = new JTextField();
         txtUser.setPreferredSize(new Dimension(380, 40));
         txtUser.setFont(new Font("SansSerif", Font.PLAIN, 14));
         card.add(txtUser, gbc);
@@ -77,7 +77,7 @@ public class LoginView extends JFrame {
 
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 24, 0);
-        txtPass = new JPasswordField("Admin123");
+        txtPass = new JPasswordField();
         txtPass.setPreferredSize(new Dimension(380, 40));
         txtPass.setFont(new Font("SansSerif", Font.PLAIN, 14));
         card.add(txtPass, gbc);

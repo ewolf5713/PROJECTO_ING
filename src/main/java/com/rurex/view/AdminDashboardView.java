@@ -4,13 +4,21 @@ import com.rurex.controller.AuthController;
 import com.rurex.controller.FleetController;
 import com.rurex.controller.ItineraryController;
 import com.rurex.model.User;
+import com.rurex.service.FleetService;
+import com.rurex.service.ItineraryService;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class AdminDashboardView extends JFrame {
 
-    public AdminDashboardView(User user, AuthController authController, FleetController fleetController, ItineraryController itineraryController) {
+    private final FleetService fleetService;
+    private final ItineraryService itineraryService;
+
+    public AdminDashboardView(User user, AuthController authController, FleetController fleetController, ItineraryController itineraryController, FleetService fleetService, ItineraryService itineraryService) {
+        this.fleetService = fleetService;
+        this.itineraryService = itineraryService;
+
         setTitle("Transporte UCV - Panel Administrador");
         setSize(1100, 700);
         setMinimumSize(new Dimension(900, 600));
@@ -86,9 +94,13 @@ public class AdminDashboardView extends JFrame {
         cardsPanel.setBackground(new Color(241, 243, 247));
         cardsPanel.setMaximumSize(new Dimension(1200, 130));
 
-        cardsPanel.add(createCard("Unidades Activas", "24", "En ruta operativa"));
-        cardsPanel.add(createCard("En Mantenimiento", "3", "Revision programada"));
-        cardsPanel.add(createCard("Reservas de Hoy", "187", "Confirmadas"));
+        int cantActivas = fleetService != null ? fleetService.getCantidadActivas() : 3;
+        int cantMant = fleetService != null ? fleetService.getCantidadMantenimiento() : 1;
+        int cantItin = itineraryService != null ? itineraryService.getItinerarios().size() : 3;
+
+        cardsPanel.add(createCard("Unidades Activas", String.valueOf(cantActivas), "En ruta operativa"));
+        cardsPanel.add(createCard("En Mantenimiento", String.valueOf(cantMant), "Revision programada"));
+        cardsPanel.add(createCard("Itinerarios Activos", String.valueOf(cantItin), "Programados"));
 
         content.add(cardsPanel);
 
