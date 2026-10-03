@@ -106,9 +106,8 @@ public class RegisterView extends JFrame {
         colRol.setBackground(Color.WHITE);
         colRol.setMaximumSize(new Dimension(520, 60));
         colRol.add(new JLabel("Tipo de Usuario:"), BorderLayout.NORTH);
-        // Excluimos ADMINISTRADOR del autorregistro publico por seguridad
-        UserRole[] rolesPermitidos = new UserRole[]{UserRole.ESTUDIANTE, UserRole.EMPLEADO, UserRole.CONDUCTOR};
-        JComboBox<UserRole> comboRol = new JComboBox<>(rolesPermitidos);
+        JComboBox<UserRole> comboRol = new JComboBox<>(UserRole.values());
+        comboRol.setSelectedItem(UserRole.ESTUDIANTE);
         comboRol.setPreferredSize(new Dimension(520, 36));
         comboRol.setFont(new Font("SansSerif", Font.PLAIN, 13));
         colRol.add(comboRol, BorderLayout.CENTER);

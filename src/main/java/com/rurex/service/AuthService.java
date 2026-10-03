@@ -23,10 +23,6 @@ public class AuthService {
     public synchronized void registrarUsuario(String nombreCompleto, String email, String cedula, UserRole rol, String carnet, String password) {
         validarCampos(nombreCompleto, email, cedula, password);
 
-        if (rol == UserRole.ADMINISTRADOR) {
-            throw new IllegalArgumentException("No se permite el autorregistro con privilegios de administrador.");
-        }
-
         String emailNorm = email.trim().toLowerCase();
         String cedulaNorm = cedula.trim().toUpperCase();
 
