@@ -28,17 +28,27 @@ public class FleetController {
     public void registrarNuevaUnidad(String placa, String modelo, int capacidad, OperationalStatus estado) {
         try {
             fleetService.registrarUnidad(placa, modelo, capacidad, estado);
-            JOptionPane.showMessageDialog(fleetView, "Unidad registrada.", "Listo", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(fleetView, "Unidad registrada correctamente.", "Listo", JOptionPane.INFORMATION_MESSAGE);
             if (fleetView != null) fleetView.actualizarTabla();
         } catch (IllegalArgumentException ex) {
-            JOptionPane.showMessageDialog(fleetView, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(fleetView, ex.getMessage(), "Error al Registrar", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void editarUnidad(String placa, String modelo, int capacidad, OperationalStatus estado) {
+        try {
+            fleetService.editarUnidad(placa, modelo, capacidad, estado);
+            JOptionPane.showMessageDialog(fleetView, "Unidad editada con exito.", "Listo", JOptionPane.INFORMATION_MESSAGE);
+            if (fleetView != null) fleetView.actualizarTabla();
+        } catch (IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(fleetView, ex.getMessage(), "Error al Editar", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     public void cambiarEstadoUnidad(String placa, OperationalStatus nuevoEstado) {
         try {
             fleetService.actualizarEstado(placa, nuevoEstado);
-            JOptionPane.showMessageDialog(fleetView, "Estado actualizado.", "Listo", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(fleetView, "Estado actualizado con exito.", "Listo", JOptionPane.INFORMATION_MESSAGE);
             if (fleetView != null) fleetView.actualizarTabla();
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(fleetView, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);

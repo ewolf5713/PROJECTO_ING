@@ -49,14 +49,24 @@ public class FleetService {
         return lista;
     }
 
-    public synchronized TransportUnit actualizarEstado(String placa, OperationalStatus nuevoEstado) {
+    public synchronized TransportUnit editarUnidad(String placa, String modelo, int capacidad, OperationalStatus nuevoEstado) {
         TransportUnit u = findByPlaca(placa)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontro la unidad con placa " + placa));
 
+        if (modelo != null && !modelo.isBlank()) {
+            u.setModelo(modelo.trim());
+        }
+        if (capacidad > 0) {
+            u.setCapacidad(capacidad);
+        }
         if (nuevoEstado != null) {
             u.setEstado(nuevoEstado);
         }
         return u;
+    }
+
+    public synchronized TransportUnit actualizarEstado(String placa, OperationalStatus nuevoEstado) {
+        return editarUnidad(placa, null, 0, nuevoEstado);
     }
 
     public synchronized Optional<TransportUnit> findByPlaca(String placa) {

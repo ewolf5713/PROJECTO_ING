@@ -66,17 +66,26 @@ public class FleetView extends JFrame {
         scroll.setBackground(new Color(241, 243, 247));
         mainPanel.add(scroll, BorderLayout.CENTER);
 
-        JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 25, 16));
+        JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 16));
         bottomBar.setBackground(Color.WHITE);
         bottomBar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(220, 224, 230)));
 
-        JButton btnChangeStatus = new JButton("Cambiar Estado de Unidad");
+        JButton btnEditar = new JButton("Editar Unidad");
+        btnEditar.setBackground(Color.WHITE);
+        btnEditar.setForeground(new Color(40, 45, 55));
+        btnEditar.setFont(new Font("SansSerif", Font.BOLD, 13));
+        btnEditar.setPreferredSize(new Dimension(160, 38));
+        btnEditar.setFocusPainted(false);
+        bottomBar.add(btnEditar);
+
+        JButton btnChangeStatus = new JButton("Cambiar Estado");
         btnChangeStatus.setBackground(new Color(24, 32, 56));
         btnChangeStatus.setForeground(Color.WHITE);
         btnChangeStatus.setFont(new Font("SansSerif", Font.BOLD, 13));
-        btnChangeStatus.setPreferredSize(new Dimension(220, 38));
+        btnChangeStatus.setPreferredSize(new Dimension(180, 38));
         btnChangeStatus.setFocusPainted(false);
         bottomBar.add(btnChangeStatus);
+
         mainPanel.add(bottomBar, BorderLayout.SOUTH);
 
         add(mainPanel);
@@ -101,6 +110,36 @@ public class FleetView extends JFrame {
                 try {
                     int cap = Integer.parseInt(txtCapacidad.getText().trim());
                     controller.registrarNuevaUnidad(txtPlaca.getText(), txtModelo.getText(), cap, (OperationalStatus) comboStatus.getSelectedItem());
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "La capacidad debe ser un numero entero.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        btnEditar.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(this, "Seleccione una unidad de la lista para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            String plate = (String) tableModel.getValueAt(row, 0);
+            String model = (String) tableModel.getValueAt(row, 1);
+            String capStr = ((String) tableModel.getValueAt(row, 2)).replace(" puestos", "").trim();
+
+            JTextField txtEditModelo = new JTextField(model);
+            JTextField txtEditCapacidad = new JTextField(capStr);
+
+            Object[] fields = {
+                    "Placa (no editable):", new JLabel(plate),
+                    "Nuevo Modelo:", txtEditModelo,
+                    "Nueva Capacidad:", txtEditCapacidad
+            };
+
+            int option = JOptionPane.showConfirmDialog(this, fields, "Editar Unidad " + plate, JOptionPane.OK_CANCEL_OPTION);
+            if (option == JOptionPane.OK_OPTION) {
+                try {
+                    int cap = Integer.parseInt(txtEditCapacidad.getText().trim());
+                    controller.editarUnidad(plate, txtEditModelo.getText(), cap, null);
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this, "La capacidad debe ser un numero entero.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
