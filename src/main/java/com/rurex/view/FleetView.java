@@ -19,153 +19,123 @@ public class FleetView extends JFrame {
         this.controller = controller;
         this.controller.setFleetView(this);
 
-        setTitle("Transporte UCV - Gestion de Unidades");
-        setSize(1000, 680);
-        setMinimumSize(new Dimension(850, 550));
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setTitle("Transporte UCV - Gestión de Unidades");
+        setSize(1100, 700);
+        setMinimumSize(new Dimension(900, 600));
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(241, 243, 247));
+        JPanel contenido = new JPanel(new BorderLayout(0, 12));
+        contenido.setBackground(Estilos.FONDO);
 
-        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 16));
-        topBar.setBackground(Color.WHITE);
-        topBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 224, 230)));
+        JPanel barra = new JPanel(new BorderLayout());
+        barra.setBackground(Estilos.FONDO);
 
-        JButton btnNewUnit = new JButton("+ Nueva Unidad");
-        btnNewUnit.setBackground(new Color(27, 135, 84));
-        btnNewUnit.setForeground(Color.WHITE);
-        btnNewUnit.setFont(new Font("SansSerif", Font.BOLD, 13));
-        btnNewUnit.setPreferredSize(new Dimension(160, 38));
-        btnNewUnit.setFocusPainted(false);
-        topBar.add(btnNewUnit);
+        JButton btnNewUnit = Estilos.botonPrimario("+ Nueva Unidad");
+        barra.add(btnNewUnit, BorderLayout.WEST);
 
-        JLabel lblFiltro = new JLabel("Filtrar por estado operativo:");
-        lblFiltro.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        topBar.add(lblFiltro);
-
+        JPanel filtro = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        filtro.setBackground(Estilos.FONDO);
+        filtro.add(Estilos.etiqueta("Filtrar por estado operativo:", Font.PLAIN, 13, Estilos.NAVY));
         comboFilter = new JComboBox<>(new String[]{"Todas", "Activa", "En Mantenimiento", "Fuera de Servicio"});
-        comboFilter.setPreferredSize(new Dimension(200, 36));
-        comboFilter.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        topBar.add(comboFilter);
+        Estilos.estilizarCombo(comboFilter);
+        filtro.add(comboFilter);
+        barra.add(filtro, BorderLayout.EAST);
 
-        mainPanel.add(topBar, BorderLayout.NORTH);
+        contenido.add(barra, BorderLayout.NORTH);
 
-        String[] cols = {"Placa", "Modelo", "Capacidad", "Estado Operativo"};
+        String[] cols = {"Placa", "Modelo", "Capacidad", "Estado", "Acciones"};
         tableModel = new DefaultTableModel(cols, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
+            @Override public boolean isCellEditable(int row, int col) { return col == 4; }
         };
         JTable table = new JTable(tableModel);
-        table.setRowHeight(34);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        table.getTableHeader().setPreferredSize(new Dimension(0, 36));
+        JScrollPane scroll = Estilos.estilizarTabla(table);
 
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
-        scroll.setBackground(new Color(241, 243, 247));
-        mainPanel.add(scroll, BorderLayout.CENTER);
+        table.getColumn("Modelo").setCellRenderer(Estilos.rendererTexto(Estilos.GRIS));
+        table.getColumn("Estado").setCellRenderer(Estilos.rendererBadge());
 
-        JPanel bottomBar = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 16));
-        bottomBar.setBackground(Color.WHITE);
-        bottomBar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(220, 224, 230)));
+        Estilos.AccionesCelda acciones = new Estilos.AccionesCelda(new String[]{"Editar", "Cambiar Estado"}, false, (fila, boton) -> {
+            String placa = (String) tableModel.getValueAt(fila, 0);
+            if (boton == 0) {
+                mostrarDialogoEditar(placa, (String) tableModel.getValueAt(fila, 1), (String) tableModel.getValueAt(fila, 2));
+            } else {
+                mostrarDialogoEstado(placa, (String) tableModel.getValueAt(fila, 3));
+            }
+        });
+        table.getColumn("Acciones").setCellRenderer(acciones);
+        table.getColumn("Acciones").setCellEditor(acciones);
+        table.getColumn("Acciones").setMinWidth(250);
+        table.getColumn("Acciones").setMaxWidth(250);
+        table.getColumn("Placa").setMinWidth(80);
+        table.getColumn("Modelo").setPreferredWidth(200);
+        table.getColumn("Capacidad").setMinWidth(100);
+        table.getColumn("Estado").setMinWidth(140);
 
-        JButton btnEditar = new JButton("Editar Unidad");
-        btnEditar.setBackground(Color.WHITE);
-        btnEditar.setForeground(new Color(40, 45, 55));
-        btnEditar.setFont(new Font("SansSerif", Font.BOLD, 13));
-        btnEditar.setPreferredSize(new Dimension(160, 38));
-        btnEditar.setFocusPainted(false);
-        bottomBar.add(btnEditar);
+        contenido.add(Estilos.cardConTitulo("Lista de Unidades", scroll), BorderLayout.CENTER);
 
-        JButton btnChangeStatus = new JButton("Cambiar Estado");
-        btnChangeStatus.setBackground(new Color(24, 32, 56));
-        btnChangeStatus.setForeground(Color.WHITE);
-        btnChangeStatus.setFont(new Font("SansSerif", Font.BOLD, 13));
-        btnChangeStatus.setPreferredSize(new Dimension(180, 38));
-        btnChangeStatus.setFocusPainted(false);
-        bottomBar.add(btnChangeStatus);
-
-        mainPanel.add(bottomBar, BorderLayout.SOUTH);
-
-        add(mainPanel);
+        Estilos.crearShell(this, "Unidades", "Gestión de Unidades", contenido);
 
         comboFilter.addActionListener(e -> actualizarTabla());
+        btnNewUnit.addActionListener(e -> mostrarDialogoNueva());
+    }
 
-        btnNewUnit.addActionListener(e -> {
-            JTextField txtPlaca = new JTextField();
-            JTextField txtModelo = new JTextField();
-            JTextField txtCapacidad = new JTextField("30");
-            JComboBox<OperationalStatus> comboStatus = new JComboBox<>(OperationalStatus.values());
+    private void mostrarDialogoNueva() {
+        JTextField txtPlaca = Estilos.campo("UCV-234");
+        JTextField txtModelo = Estilos.campo("Mercedes-Benz OF-1721");
+        JTextField txtCapacidad = Estilos.campo("30");
+        txtCapacidad.setText("30");
+        JComboBox<OperationalStatus> comboStatus = new JComboBox<>(OperationalStatus.values());
+        Estilos.estilizarCombo(comboStatus);
 
-            Object[] fields = {
-                    "Placa:", txtPlaca,
-                    "Modelo:", txtModelo,
-                    "Capacidad de Pasajeros:", txtCapacidad,
-                    "Estado Inicial:", comboStatus
-            };
+        JPanel form = Estilos.crearFormulario();
+        Estilos.agregarCampo(form, "Placa:", txtPlaca);
+        Estilos.agregarCampo(form, "Modelo:", txtModelo);
+        Estilos.agregarCampo(form, "Capacidad de Pasajeros:", txtCapacidad);
+        Estilos.agregarCampo(form, "Estado Inicial:", comboStatus);
 
-            int option = JOptionPane.showConfirmDialog(this, fields, "Registrar Nueva Unidad", JOptionPane.OK_CANCEL_OPTION);
-            if (option == JOptionPane.OK_OPTION) {
-                try {
-                    int cap = Integer.parseInt(txtCapacidad.getText().trim());
-                    controller.registrarNuevaUnidad(txtPlaca.getText(), txtModelo.getText(), cap, (OperationalStatus) comboStatus.getSelectedItem());
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "La capacidad debe ser un numero entero.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
+        JDialog dialogo = Estilos.crearDialogo(this, "Nueva Unidad", form, "Guardar",
+                () -> Estilos.validarEntero(form, txtCapacidad.getText(), "La capacidad debe ser un número entero."),
+                () -> controller.registrarNuevaUnidad(
+                        txtPlaca.getText(),
+                        txtModelo.getText(),
+                        Integer.parseInt(txtCapacidad.getText().trim()),
+                        (OperationalStatus) comboStatus.getSelectedItem()));
+        dialogo.setVisible(true);
+    }
 
-        btnEditar.addActionListener(e -> {
-            int row = table.getSelectedRow();
-            if (row < 0) {
-                JOptionPane.showMessageDialog(this, "Seleccione una unidad de la lista para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            String plate = (String) tableModel.getValueAt(row, 0);
-            String model = (String) tableModel.getValueAt(row, 1);
-            String capStr = ((String) tableModel.getValueAt(row, 2)).replace(" puestos", "").trim();
+    private void mostrarDialogoEditar(String placa, String modelo, String capacidadTexto) {
+        JTextField txtPlaca = Estilos.campo("");
+        txtPlaca.setText(placa);
+        txtPlaca.setEditable(false);
+        txtPlaca.setBackground(Estilos.GRIS_CLARO);
+        JTextField txtModelo = Estilos.campo("");
+        txtModelo.setText(modelo);
+        JTextField txtCapacidad = Estilos.campo("");
+        txtCapacidad.setText(capacidadTexto.replace(" pasajeros", "").trim());
 
-            JTextField txtEditModelo = new JTextField(model);
-            JTextField txtEditCapacidad = new JTextField(capStr);
+        JPanel form = Estilos.crearFormulario();
+        Estilos.agregarCampo(form, "Placa (no editable):", txtPlaca);
+        Estilos.agregarCampo(form, "Modelo:", txtModelo);
+        Estilos.agregarCampo(form, "Capacidad de Pasajeros:", txtCapacidad);
 
-            Object[] fields = {
-                    "Placa (no editable):", new JLabel(plate),
-                    "Nuevo Modelo:", txtEditModelo,
-                    "Nueva Capacidad:", txtEditCapacidad
-            };
+        JDialog dialogo = Estilos.crearDialogo(this, "Editar Unidad " + placa, form, "Guardar",
+                () -> Estilos.validarEntero(form, txtCapacidad.getText(), "La capacidad debe ser un número entero."),
+                () -> controller.editarUnidad(placa, txtModelo.getText(), Integer.parseInt(txtCapacidad.getText().trim()), null));
+        dialogo.setVisible(true);
+    }
 
-            int option = JOptionPane.showConfirmDialog(this, fields, "Editar Unidad " + plate, JOptionPane.OK_CANCEL_OPTION);
-            if (option == JOptionPane.OK_OPTION) {
-                try {
-                    int cap = Integer.parseInt(txtEditCapacidad.getText().trim());
-                    controller.editarUnidad(plate, txtEditModelo.getText(), cap, null);
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this, "La capacidad debe ser un numero entero.", "Error", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
+    private void mostrarDialogoEstado(String placa, String estadoActual) {
+        JComboBox<OperationalStatus> comboStatus = new JComboBox<>(OperationalStatus.values());
+        Estilos.estilizarCombo(comboStatus);
+        comboStatus.setSelectedItem(OperationalStatus.fromString(estadoActual));
 
-        btnChangeStatus.addActionListener(e -> {
-            int row = table.getSelectedRow();
-            if (row < 0) {
-                JOptionPane.showMessageDialog(this, "Seleccione una unidad de la lista.", "Aviso", JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            String plate = (String) tableModel.getValueAt(row, 0);
-            OperationalStatus newStatus = (OperationalStatus) JOptionPane.showInputDialog(
-                    this,
-                    "Seleccione nuevo estado para " + plate + ":",
-                    "Cambiar Estado",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    OperationalStatus.values(),
-                    OperationalStatus.ACTIVA
-            );
-            if (newStatus != null) {
-                controller.cambiarEstadoUnidad(plate, newStatus);
-            }
-        });
+        JPanel form = Estilos.crearFormulario();
+        Estilos.agregarCampo(form, "Nuevo estado para " + placa + ":", comboStatus);
+
+        JDialog dialogo = Estilos.crearDialogo(this, "Cambiar Estado", form, "Guardar",
+                () -> true,
+                () -> controller.cambiarEstadoUnidad(placa, (OperationalStatus) comboStatus.getSelectedItem()));
+        dialogo.setVisible(true);
     }
 
     public void actualizarTabla() {
@@ -181,8 +151,9 @@ public class FleetView extends JFrame {
             tableModel.addRow(new Object[]{
                     u.getPlaca(),
                     u.getModelo(),
-                    u.getCapacidad() + " puestos",
-                    u.getEstado().getLabel()
+                    u.getCapacidad() + " pasajeros",
+                    u.getEstado().getLabel(),
+                    ""
             });
         }
     }

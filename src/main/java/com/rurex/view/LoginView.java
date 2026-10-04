@@ -15,92 +15,46 @@ public class LoginView extends JFrame {
         this.controller = controller;
         this.controller.setLoginView(this);
 
-        setTitle("Transporte UCV - Inicio de Sesion");
+        setTitle("Transporte UCV - Inicio de Sesión");
         setSize(1000, 650);
         setMinimumSize(new Dimension(800, 550));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
         JPanel mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setBackground(new Color(241, 243, 247));
-        add(mainPanel);
+        mainPanel.setBackground(Estilos.FONDO);
+        setContentPane(mainPanel);
 
-        JPanel card = new JPanel(new GridBagLayout());
-        card.setBackground(Color.WHITE);
-        card.setPreferredSize(new Dimension(460, 480));
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 224, 230), 1),
-                BorderFactory.createEmptyBorder(35, 40, 35, 40)
-        ));
+        JPanel card = Estilos.crearCard(24);
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
+        card.add(Estilos.etiqueta("Transporte UCV", Font.BOLD, 20, Estilos.NAVY));
+        card.add(Box.createVerticalStrut(4));
+        card.add(Estilos.etiqueta("Sistema de gestión de transporte universitario", Font.PLAIN, 12, Estilos.GRIS));
+        card.add(Box.createVerticalStrut(14));
+        card.add(Estilos.separador());
+        card.add(Box.createVerticalStrut(16));
 
-        JLabel lblTitle = new JLabel("Transporte UCV", SwingConstants.CENTER);
-        lblTitle.setFont(new Font("SansSerif", Font.BOLD, 26));
-        lblTitle.setForeground(new Color(24, 32, 56));
-        card.add(lblTitle, gbc);
+        txtUser = Estilos.campo("ejemplo@ucv.ve o V-12345678");
+        txtPass = Estilos.campoClave("Ingrese su contraseña");
 
-        gbc.gridy++;
-        gbc.insets = new Insets(6, 0, 0, 0);
-        JLabel lblSub = new JLabel("Sistema de gestion de transporte universitario", SwingConstants.CENTER);
-        lblSub.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        lblSub.setForeground(new Color(110, 118, 135));
-        card.add(lblSub, gbc);
+        card.add(Estilos.etiquetaCampo("Correo o Cédula:", txtUser));
+        card.add(Box.createVerticalStrut(12));
+        card.add(Estilos.etiquetaCampo("Contraseña:", txtPass));
+        card.add(Box.createVerticalStrut(20));
 
-        gbc.gridy++;
-        gbc.insets = new Insets(18, 0, 18, 0);
-        JSeparator sep = new JSeparator();
-        card.add(sep, gbc);
+        JButton btnLogin = Estilos.botonPrimario("Iniciar Sesión");
+        btnLogin.setAlignmentX(Component.CENTER_ALIGNMENT);
+        Estilos.anchoCompleto(btnLogin);
+        card.add(btnLogin);
+        card.add(Box.createVerticalStrut(8));
 
-        gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 6, 0);
-        JLabel lblUser = new JLabel("Correo institucional o Cedula:");
-        lblUser.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        card.add(lblUser, gbc);
+        JButton btnRegister = Estilos.botonOutline("Crear Cuenta");
+        btnRegister.setAlignmentX(Component.CENTER_ALIGNMENT);
+        Estilos.anchoCompleto(btnRegister);
+        card.add(btnRegister);
 
-        gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 16, 0);
-        txtUser = new JTextField();
-        txtUser.setPreferredSize(new Dimension(380, 40));
-        txtUser.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        card.add(txtUser, gbc);
-
-        gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 6, 0);
-        JLabel lblPassword = new JLabel("Contraseña:");
-        lblPassword.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        card.add(lblPassword, gbc);
-
-        gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 24, 0);
-        txtPass = new JPasswordField();
-        txtPass.setPreferredSize(new Dimension(380, 40));
-        txtPass.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        card.add(txtPass, gbc);
-
-        gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 12, 0);
-        JButton btnLogin = new JButton("Iniciar Sesion");
-        btnLogin.setPreferredSize(new Dimension(380, 44));
-        btnLogin.setBackground(new Color(27, 135, 84));
-        btnLogin.setForeground(Color.WHITE);
-        btnLogin.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnLogin.setFocusPainted(false);
-        card.add(btnLogin, gbc);
-
-        gbc.gridy++;
-        gbc.insets = new Insets(0, 0, 0, 0);
-        JButton btnRegister = new JButton("Crear Cuenta");
-        btnRegister.setPreferredSize(new Dimension(380, 40));
-        btnRegister.setBackground(Color.WHITE);
-        btnRegister.setForeground(new Color(40, 45, 55));
-        btnRegister.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        btnRegister.setFocusPainted(false);
-        card.add(btnRegister, gbc);
+        card.setPreferredSize(new Dimension(360, card.getPreferredSize().height));
 
         btnLogin.addActionListener(e -> controller.login(txtUser.getText(), new String(txtPass.getPassword())));
         btnRegister.addActionListener(e -> controller.mostrarRegistro());

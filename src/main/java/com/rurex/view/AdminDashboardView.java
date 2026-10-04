@@ -3,17 +3,26 @@ package com.rurex.view;
 import com.rurex.controller.AuthController;
 import com.rurex.controller.FleetController;
 import com.rurex.controller.ItineraryController;
+import com.rurex.model.Itinerary;
 import com.rurex.model.User;
 import com.rurex.service.FleetService;
 import com.rurex.service.ItineraryService;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.util.List;
 
 public class AdminDashboardView extends JFrame {
 
     private final FleetService fleetService;
     private final ItineraryService itineraryService;
+    private final JLabel lblActivas = crearValor();
+    private final JLabel lblMantenimiento = crearValor();
+    private final JLabel lblItinerarios = crearValor();
+    private final DefaultTableModel tableModel;
 
     public AdminDashboardView(User user, AuthController authController, FleetController fleetController, ItineraryController itineraryController, FleetService fleetService, ItineraryService itineraryService) {
         this.fleetService = fleetService;
@@ -25,158 +34,82 @@ public class AdminDashboardView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(new Color(241, 243, 247));
+        Estilos.iniciarSesion(user.getNombreCompleto(), this, authController, fleetController, itineraryController);
 
-        JPanel sidebar = new JPanel();
-        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setPreferredSize(new Dimension(240, 700));
-        sidebar.setBackground(Color.WHITE);
-        sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(220, 224, 230)));
+        JPanel contenido = new JPanel(new BorderLayout(16, 0));
+        contenido.setBackground(Estilos.FONDO);
 
-        JLabel lblLogo = new JLabel("Transporte UCV");
-        lblLogo.setFont(new Font("SansSerif", Font.BOLD, 20));
-        lblLogo.setForeground(new Color(24, 32, 56));
-        lblLogo.setBorder(BorderFactory.createEmptyBorder(25, 25, 5, 25));
+        JPanel columnaStats = new JPanel(new GridLayout(3, 1, 0, 12));
+        columnaStats.setBackground(Estilos.FONDO);
+        columnaStats.add(crearStat("Unidades Activas", lblActivas, "En ruta operativa"));
+        columnaStats.add(crearStat("En Mantenimiento", lblMantenimiento, "Revisión programada"));
+        columnaStats.add(crearStat("Itinerarios Activos", lblItinerarios, "Programados"));
 
-        JLabel lblSub = new JLabel("Sistema de Gestion");
-        lblSub.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        lblSub.setForeground(new Color(110, 118, 135));
-        lblSub.setBorder(BorderFactory.createEmptyBorder(0, 25, 25, 25));
+        JPanel contenedorStats = new JPanel(new BorderLayout());
+        contenedorStats.setBackground(Estilos.FONDO);
+        contenedorStats.setPreferredSize(new Dimension(210, 0));
+        contenedorStats.add(columnaStats, BorderLayout.NORTH);
+        contenido.add(contenedorStats, BorderLayout.WEST);
 
-        sidebar.add(lblLogo);
-        sidebar.add(lblSub);
+        String[] cols = {"Ruta", "Fecha y Hora", "Unidad", "Cupos"};
+        tableModel = new DefaultTableModel(cols, 0) {
+            @Override public boolean isCellEditable(int row, int col) { return false; }
+        };
+        JTable table = new JTable(tableModel);
+        JScrollPane scroll = Estilos.estilizarTabla(table);
+        table.getColumn("Fecha y Hora").setCellRenderer(Estilos.rendererTexto(Estilos.GRIS));
+        table.getColumn("Unidad").setCellRenderer(Estilos.rendererTexto(Estilos.GRIS));
+        contenido.add(Estilos.cardConTitulo("Últimos Itinerarios Creados", scroll), BorderLayout.CENTER);
 
-        JButton btnInicio = createSidebarButton("Inicio", true);
-        JButton btnUnidades = createSidebarButton("Gestion de Unidades", false);
-        JButton btnItinerarios = createSidebarButton("Gestion de Itinerarios", false);
-        JButton btnLogout = new JButton("Cerrar Sesion");
+        Estilos.crearShell(this, "Inicio", "Panel de Administración", contenido);
 
-        btnLogout.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnLogout.setMaximumSize(new Dimension(190, 40));
-        btnLogout.setPreferredSize(new Dimension(190, 40));
-        btnLogout.setForeground(new Color(190, 40, 40));
-        btnLogout.setBackground(Color.WHITE);
-        btnLogout.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        btnLogout.setFocusPainted(false);
-
-        btnUnidades.addActionListener(e -> fleetController.mostrarVista());
-        btnItinerarios.addActionListener(e -> itineraryController.mostrarVista());
-        btnLogout.addActionListener(e -> {
-            dispose();
-            authController.volverLogin();
+        cargarDatos();
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                cargarDatos();
+            }
         });
+    }
 
-        sidebar.add(btnInicio);
-        sidebar.add(Box.createVerticalStrut(10));
-        sidebar.add(btnUnidades);
-        sidebar.add(Box.createVerticalStrut(10));
-        sidebar.add(btnItinerarios);
-        sidebar.add(Box.createVerticalGlue());
-        sidebar.add(btnLogout);
-        sidebar.add(Box.createVerticalStrut(25));
+    private JLabel crearValor() {
+        JLabel v = Estilos.etiqueta("0", Font.BOLD, 24, Estilos.NAVY);
+        v.setHorizontalAlignment(SwingConstants.CENTER);
+        return v;
+    }
 
-        mainPanel.add(sidebar, BorderLayout.WEST);
+    private JPanel crearStat(String titulo, JLabel lblValor, String caption) {
+        JPanel centro = new JPanel();
+        centro.setLayout(new BoxLayout(centro, BoxLayout.Y_AXIS));
+        centro.setBackground(Color.WHITE);
+        centro.add(lblValor);
+        centro.add(Box.createVerticalStrut(4));
+        centro.add(Estilos.etiqueta(caption, Font.PLAIN, 11, Estilos.VERDE));
+        return Estilos.cardConTitulo(titulo, centro);
+    }
 
-        JPanel content = new JPanel();
-        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        content.setBorder(BorderFactory.createEmptyBorder(30, 35, 30, 35));
-        content.setBackground(new Color(241, 243, 247));
-
-        JLabel lblWelcome = new JLabel("Panel de Administracion — " + user.getNombreCompleto());
-        lblWelcome.setFont(new Font("SansSerif", Font.BOLD, 22));
-        lblWelcome.setForeground(new Color(24, 32, 56));
-        content.add(lblWelcome);
-
-        content.add(Box.createVerticalStrut(25));
-
-        JPanel cardsPanel = new JPanel(new GridLayout(1, 3, 20, 0));
-        cardsPanel.setBackground(new Color(241, 243, 247));
-        cardsPanel.setMaximumSize(new Dimension(1200, 130));
-
+    private void cargarDatos() {
         int cantActivas = fleetService != null ? fleetService.getCantidadActivas() : 3;
         int cantMant = fleetService != null ? fleetService.getCantidadMantenimiento() : 1;
         int cantItin = itineraryService != null ? itineraryService.getItinerarios().size() : 3;
 
-        cardsPanel.add(createCard("Unidades Activas", String.valueOf(cantActivas), "En ruta operativa"));
-        cardsPanel.add(createCard("En Mantenimiento", String.valueOf(cantMant), "Revision programada"));
-        cardsPanel.add(createCard("Itinerarios Activos", String.valueOf(cantItin), "Programados"));
+        lblActivas.setText(String.valueOf(cantActivas));
+        lblMantenimiento.setText(String.valueOf(cantMant));
+        lblItinerarios.setText(String.valueOf(cantItin));
 
-        content.add(cardsPanel);
-
-        content.add(Box.createVerticalStrut(35));
-
-        JPanel actionsPanel = new JPanel(new GridLayout(1, 2, 20, 0));
-        actionsPanel.setBackground(new Color(241, 243, 247));
-        actionsPanel.setMaximumSize(new Dimension(1200, 50));
-
-        JButton btnOpenFleet = new JButton("Gestion de Unidades (Flota)");
-        btnOpenFleet.setBackground(new Color(27, 135, 84));
-        btnOpenFleet.setForeground(Color.WHITE);
-        btnOpenFleet.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnOpenFleet.setFocusPainted(false);
-        btnOpenFleet.addActionListener(e -> fleetController.mostrarVista());
-        actionsPanel.add(btnOpenFleet);
-
-        JButton btnOpenItin = new JButton("Gestion de Itinerarios");
-        btnOpenItin.setBackground(new Color(24, 32, 56));
-        btnOpenItin.setForeground(Color.WHITE);
-        btnOpenItin.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnOpenItin.setFocusPainted(false);
-        btnOpenItin.addActionListener(e -> itineraryController.mostrarVista());
-        actionsPanel.add(btnOpenItin);
-
-        content.add(actionsPanel);
-
-        mainPanel.add(content, BorderLayout.CENTER);
-        add(mainPanel);
-    }
-
-    private JButton createSidebarButton(String text, boolean active) {
-        JButton b = new JButton(text);
-        b.setAlignmentX(Component.CENTER_ALIGNMENT);
-        b.setMaximumSize(new Dimension(190, 40));
-        b.setPreferredSize(new Dimension(190, 40));
-        b.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        b.setFocusPainted(false);
-        if (active) {
-            b.setBackground(new Color(27, 135, 84));
-            b.setForeground(Color.WHITE);
-        } else {
-            b.setBackground(Color.WHITE);
-            b.setForeground(new Color(40, 45, 55));
+        tableModel.setRowCount(0);
+        if (itineraryService == null) return;
+        List<Itinerary> lista = itineraryService.getItinerarios();
+        int mostrados = 0;
+        for (int i = lista.size() - 1; i >= 0 && mostrados < 8; i--) {
+            Itinerary it = lista.get(i);
+            tableModel.addRow(new Object[]{
+                    it.getRutaNombre(),
+                    it.getFecha() + " " + it.getHoraSalida(),
+                    it.getUnidad().getPlaca(),
+                    it.getCuposDisponibles() + " cupos"
+            });
+            mostrados++;
         }
-        return b;
-    }
-
-    private JPanel createCard(String title, String value, String sub) {
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.setBackground(Color.WHITE);
-        p.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(220, 224, 230), 1),
-                BorderFactory.createEmptyBorder(20, 20, 20, 20)
-        ));
-
-        JLabel t = new JLabel(title);
-        t.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        t.setForeground(new Color(110, 118, 135));
-        p.add(t);
-
-        p.add(Box.createVerticalStrut(8));
-
-        JLabel v = new JLabel(value);
-        v.setFont(new Font("SansSerif", Font.BOLD, 32));
-        v.setForeground(new Color(24, 32, 56));
-        p.add(v);
-
-        p.add(Box.createVerticalStrut(4));
-
-        JLabel s = new JLabel(sub);
-        s.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        s.setForeground(new Color(27, 135, 84));
-        p.add(s);
-
-        return p;
     }
 }
