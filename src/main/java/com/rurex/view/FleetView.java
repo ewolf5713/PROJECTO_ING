@@ -22,7 +22,7 @@ public class FleetView extends JFrame {
         setTitle("Transporte UCV - Gestión de Unidades");
         setSize(1100, 700);
         setMinimumSize(new Dimension(900, 600));
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Estilos.cerrarVolviendoAlInicio(this);
         setLocationRelativeTo(null);
 
         JPanel contenido = new JPanel(new BorderLayout(0, 12));

@@ -541,6 +541,17 @@ public class Estilos {
         return pie;
     }
 
+    public static void cerrarVolviendoAlInicio(JFrame ventana) {
+        ventana.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        ventana.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                ventana.setVisible(false);
+                if (ventanaInicio != null) ventanaInicio.setVisible(true);
+            }
+        });
+    }
+
     private static JPanel crearSidebar(JFrame ventana, String activo) {
         JPanel sidebar = new JPanel(new BorderLayout());
         sidebar.setBackground(SIDEBAR);
