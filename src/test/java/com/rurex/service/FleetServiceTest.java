@@ -53,6 +53,18 @@ public class FleetServiceTest {
     }
 
     @Test
+    void testFailedEditKeepsUnitUnchanged() {
+        assertThrows(IllegalArgumentException.class, () ->
+                fleetService.editarUnidad("UCV-234", "Modelo Nuevo", 0, null)
+        );
+        TransportUnit unidad = fleetService.getUnidades().stream()
+                .filter(u -> u.getPlaca().equals("UCV-234"))
+                .findFirst().orElseThrow();
+        assertEquals("Mercedes-Benz OF-1721", unidad.getModelo());
+        assertEquals(32, unidad.getCapacidad());
+    }
+
+    @Test
     void testFilterByOperationalStatus() {
         List<TransportUnit> active = fleetService.filtrarPorEstado(OperationalStatus.ACTIVA);
         assertFalse(active.isEmpty());
