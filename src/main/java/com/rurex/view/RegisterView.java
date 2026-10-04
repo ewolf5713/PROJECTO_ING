@@ -56,7 +56,7 @@ public class RegisterView extends JFrame {
         JTextField txtCedula = Estilos.campo("V-12345678");
         JTextField txtEmail = Estilos.campo("ejemplo@ucv.ve");
         JTextField txtCarnet = Estilos.campo("20-12345");
-        JPasswordField txtPass = Estilos.campoClave("Mínimo 8 caracteres");
+        JPasswordField txtPass = Estilos.campoClave("Mínimo 6 caracteres");
         JPasswordField txtPassConfirm = Estilos.campoClave("Repita su contraseña");
 
         card.add(Estilos.filaColumnas(

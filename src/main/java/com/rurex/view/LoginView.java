@@ -47,6 +47,7 @@ public class LoginView extends JFrame {
         btnLogin.setAlignmentX(Component.CENTER_ALIGNMENT);
         Estilos.anchoCompleto(btnLogin);
         card.add(btnLogin);
+        getRootPane().setDefaultButton(btnLogin);
         card.add(Box.createVerticalStrut(8));
 
         JButton btnRegister = Estilos.botonOutline("Crear Cuenta");

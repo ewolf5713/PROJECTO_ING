@@ -23,7 +23,7 @@ public class ItineraryView extends JFrame {
         setTitle("Transporte UCV - Gestión de Itinerarios");
         setSize(1100, 700);
         setMinimumSize(new Dimension(900, 600));
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Estilos.cerrarVolviendoAlInicio(this);
         setLocationRelativeTo(null);
 
         JTextField txtRuta = Estilos.campo("");

@@ -53,16 +53,17 @@ public class FleetService {
         TransportUnit u = findByPlaca(placa)
                 .orElseThrow(() -> new IllegalArgumentException("No se encontro la unidad con placa " + placa));
 
+        if (modelo != null && modelo.isBlank()) {
+            throw new IllegalArgumentException("El modelo no puede estar vacio.");
+        }
+        if (capacidad != null && capacidad <= 0) {
+            throw new IllegalArgumentException("La capacidad debe ser mayor a cero.");
+        }
+
         if (modelo != null) {
-            if (modelo.isBlank()) {
-                throw new IllegalArgumentException("El modelo no puede estar vacio.");
-            }
             u.setModelo(modelo.trim());
         }
         if (capacidad != null) {
-            if (capacidad <= 0) {
-                throw new IllegalArgumentException("La capacidad debe ser mayor a cero.");
-            }
             u.setCapacidad(capacidad);
         }
         if (nuevoEstado != null) {

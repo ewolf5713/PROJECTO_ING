@@ -67,9 +67,8 @@ public class AuthController {
 
     public void mostrarRegistro() {
         if (loginView != null) loginView.setVisible(false);
-        if (registerView == null) {
-            registerView = new RegisterView(this);
-        }
+        if (registerView != null) registerView.dispose();
+        registerView = new RegisterView(this);
         registerView.setVisible(true);
     }
 
@@ -82,15 +81,19 @@ public class AuthController {
         try {
             authService.registrarUsuario(nombre, email, cedula, rol, carnet, pass);
             JOptionPane.showMessageDialog(registerView, "Usuario registrado con exito.", "Listo", JOptionPane.INFORMATION_MESSAGE);
-            registerView.dispose();
-            if (loginView != null) loginView.setVisible(true);
+            volverLogin();
         } catch (IllegalArgumentException ex) {
             JOptionPane.showMessageDialog(registerView, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     public void volverLogin() {
-        if (registerView != null) registerView.dispose();
-        if (loginView != null) loginView.setVisible(true);
+        if (registerView != null) {
+            registerView.dispose();
+            registerView = null;
+        }
+        if (loginView != null) loginView.dispose();
+        loginView = new LoginView(this);
+        loginView.setVisible(true);
     }
 }
