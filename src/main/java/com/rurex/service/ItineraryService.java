@@ -40,13 +40,20 @@ public class ItineraryService {
             throw new IllegalArgumentException("Los cupos superan la capacidad maxima del bus (" + unidad.getCapacidad() + ").");
         }
 
-        boolean cruce = itinerariosList.stream().anyMatch(it ->
-                it.getFecha().equals(fecha) &&
-                it.getUnidad().getPlaca().equalsIgnoreCase(unidad.getPlaca()) &&
-                it.getHoraSalida().equals(salida)
-        );
-        if (cruce) {
-            throw new IllegalArgumentException("El vehiculo " + unidad.getPlaca() + " ya tiene viaje a esa misma hora.");
+        LocalTime llegadaFinal = llegada != null ? llegada : salida.plusMinutes(45);
+        String choferFinal = chofer != null && !chofer.isBlank() ? chofer.trim() : "Chofer por asignar";
+
+        for (Itinerary it : itinerariosList) {
+            boolean seCruzan = it.getFecha().equals(fecha)
+                    && salida.isBefore(it.getHoraLlegada())
+                    && it.getHoraSalida().isBefore(llegadaFinal);
+            if (!seCruzan) continue;
+            if (it.getUnidad().getPlaca().equalsIgnoreCase(unidad.getPlaca())) {
+                throw new IllegalArgumentException("El vehiculo " + unidad.getPlaca() + " ya tiene viaje en ese horario.");
+            }
+            if (chofer != null && !chofer.isBlank() && it.getConductor().equalsIgnoreCase(choferFinal)) {
+                throw new IllegalArgumentException("El conductor " + choferFinal + " ya tiene viaje en ese horario.");
+            }
         }
 
         String id = "IT-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
@@ -55,9 +62,9 @@ public class ItineraryService {
                 ruta.trim(),
                 fecha,
                 salida,
-                llegada != null ? llegada : salida.plusMinutes(45),
+                llegadaFinal,
                 unidad,
-                chofer != null && !chofer.isBlank() ? chofer.trim() : "Chofer por asignar",
+                choferFinal,
                 cuposFinal
         );
 

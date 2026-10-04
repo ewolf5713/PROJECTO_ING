@@ -31,8 +31,8 @@ public class ItineraryServiceTest {
         Itinerary it = itineraryService.crearItinerario(
                 "Caracas - Los Teques",
                 tomorrow,
-                LocalTime.of(8, 0),
                 LocalTime.of(9, 0),
+                LocalTime.of(10, 0),
                 "UCV-234",
                 "Pedro Infante",
                 32
@@ -71,6 +71,38 @@ public class ItineraryServiceTest {
                 itineraryService.crearItinerario("Ruta B", tomorrow, dep, dep.plusHours(1), "UCV-234", "Chofer B", 30)
         );
         assertTrue(ex.getMessage().contains("ya tiene viaje"));
+    }
+
+    @Test
+    void testRejectOverlappingTripOnSameUnit() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        itineraryService.crearItinerario("Ruta A", tomorrow, LocalTime.of(10, 0), LocalTime.of(11, 0), "UCV-234", "Chofer A", 30);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                itineraryService.crearItinerario("Ruta B", tomorrow, LocalTime.of(10, 30), LocalTime.of(11, 30), "UCV-234", "Chofer B", 30)
+        );
+        assertTrue(ex.getMessage().contains("ya tiene viaje"));
+    }
+
+    @Test
+    void testRejectOverlappingTripForSameDriver() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        itineraryService.crearItinerario("Ruta A", tomorrow, LocalTime.of(10, 0), LocalTime.of(11, 0), "UCV-234", "Ana Lopez", 30);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                itineraryService.crearItinerario("Ruta B", tomorrow, LocalTime.of(10, 45), LocalTime.of(11, 45), "UCV-789", "  ana lopez ", 30)
+        );
+        assertTrue(ex.getMessage().contains("conductor"));
+    }
+
+    @Test
+    void testAllowBackToBackTripsForSameUnitAndDriver() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        itineraryService.crearItinerario("Ruta A", tomorrow, LocalTime.of(10, 0), LocalTime.of(11, 0), "UCV-234", "Ana Lopez", 30);
+
+        assertDoesNotThrow(() ->
+                itineraryService.crearItinerario("Ruta B", tomorrow, LocalTime.of(11, 0), LocalTime.of(12, 0), "UCV-234", "Ana Lopez", 30)
+        );
     }
 
     @Test
