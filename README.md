@@ -42,6 +42,10 @@ Extra: demo de estado del recorrido (HU-008) dentro de los paneles de pasajero y
 
 ## Getting started
 
+### Descargar la app
+
+Para usar la app sin compilar nada, descarga el paquete de Windows o Linux desde [Releases](https://github.com/ewolf5713/PROJECTO_ING/releases/latest). Los pasos estan en [INSTALL.md](INSTALL.md).
+
 ### Requisitos
 
 - JDK 17
