@@ -1,3 +1,20 @@
-# Local Pi runtime state
-.atl/
 target/
+*.class
+*.jar
+*.log
+
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+bin/
+out/
+
+.DS_Store
+Thumbs.db
+
+.atl/
+.serena/
+.codegraph/
