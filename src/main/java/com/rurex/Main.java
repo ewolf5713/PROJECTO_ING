@@ -6,6 +6,7 @@ import com.rurex.controller.ItineraryController;
 import com.rurex.service.AuthService;
 import com.rurex.service.FleetService;
 import com.rurex.service.ItineraryService;
+import com.rurex.service.TripService;
 import com.rurex.view.LoginView;
 
 import javax.swing.*;
@@ -19,7 +20,8 @@ public class Main {
 
             FleetController fleetController = new FleetController(fleetService);
             ItineraryController itineraryController = new ItineraryController(itineraryService);
-            AuthController authController = new AuthController(authService, fleetController, itineraryController, fleetService, itineraryService);
+            TripService tripService = new TripService((passengerId, tripId) -> true);
+            AuthController authController = new AuthController(authService, fleetController, itineraryController, fleetService, itineraryService, tripService);
 
             LoginView loginView = new LoginView(authController);
             loginView.setVisible(true);

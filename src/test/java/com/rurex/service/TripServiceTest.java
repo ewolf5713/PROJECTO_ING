@@ -63,4 +63,15 @@ class TripServiceTest {
         assertEquals(Optional.empty(), service.stateForPassenger("pedro", first));
         assertEquals(Optional.empty(), service.stateForPassenger("maria", second));
     }
+
+    @Test
+    void currentStateIsEmptyUntilTripIsTouched() {
+        TripService service = new TripService((passengerId, tripId) -> true);
+        Trip trip = trip("IT-9");
+
+        assertTrue(service.currentState("IT-9").isEmpty());
+        service.stateFor(trip);
+        assertEquals(TripStage.AT_STOP, service.currentState("IT-9").get().stage());
+        assertTrue(service.currentState(null).isEmpty());
+    }
 }

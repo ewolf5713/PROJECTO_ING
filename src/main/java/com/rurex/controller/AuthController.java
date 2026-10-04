@@ -5,8 +5,11 @@ import com.rurex.model.UserRole;
 import com.rurex.service.AuthService;
 import com.rurex.service.FleetService;
 import com.rurex.service.ItineraryService;
+import com.rurex.service.TripService;
 import com.rurex.view.AdminDashboardView;
+import com.rurex.view.ConductorDashboardView;
 import com.rurex.view.LoginView;
+import com.rurex.view.PassengerDashboardView;
 import com.rurex.view.RegisterView;
 
 import javax.swing.*;
@@ -21,8 +24,10 @@ public class AuthController {
     private final ItineraryController itineraryController;
     private final FleetService fleetService;
     private final ItineraryService itineraryService;
+    private final TripService tripService;
 
-    public AuthController(AuthService authService, FleetController fleetController, ItineraryController itineraryController, FleetService fleetService, ItineraryService itineraryService) {
+    public AuthController(AuthService authService, FleetController fleetController, ItineraryController itineraryController, FleetService fleetService, ItineraryService itineraryService, TripService tripService) {
+        this.tripService = tripService;
         this.authService = authService;
         this.fleetController = fleetController;
         this.itineraryController = itineraryController;
@@ -48,9 +53,12 @@ public class AuthController {
             if (user.getRol() == UserRole.ADMINISTRADOR) {
                 AdminDashboardView dashboard = new AdminDashboardView(user, this, fleetController, itineraryController, fleetService, itineraryService);
                 dashboard.setVisible(true);
+            } else if (user.getRol() == UserRole.CONDUCTOR) {
+                ConductorDashboardView dashboard = new ConductorDashboardView(user, this, itineraryService, tripService);
+                dashboard.setVisible(true);
             } else {
-                JOptionPane.showMessageDialog(null, "Panel de usuario en construccion para siguiente sprint.", "Info", JOptionPane.INFORMATION_MESSAGE);
-                loginView.setVisible(true);
+                PassengerDashboardView dashboard = new PassengerDashboardView(user, this, itineraryService, tripService);
+                dashboard.setVisible(true);
             }
         } else {
             JOptionPane.showMessageDialog(loginView, "Usuario o clave incorrectos.", "Error", JOptionPane.ERROR_MESSAGE);

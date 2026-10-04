@@ -25,6 +25,11 @@ public final class TripService {
         return states.computeIfAbsent(trip.id(), id -> initialState(trip));
     }
 
+    public Optional<TripState> currentState(String tripId) {
+        if (tripId == null) return Optional.empty();
+        return Optional.ofNullable(states.get(tripId));
+    }
+
     public Optional<TripState> stateForPassenger(String passengerId, Trip trip) {
         requireTrip(trip);
         if (passengerId == null || !reservationVerifier.hasActiveReservation(passengerId, trip.id())) {

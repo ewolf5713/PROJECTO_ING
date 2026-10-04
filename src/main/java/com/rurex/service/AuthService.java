@@ -111,6 +111,14 @@ public class AuthService {
             User estudiante = new User("Estudiante Demo", "estudiante@ucv.ve", "V-25000000", UserRole.ESTUDIANTE, "20-12345", hashPassword("Estudiante123"));
             usuariosPorEmail.put(estudiante.getEmail(), estudiante);
             usuariosPorCedula.put(estudiante.getCedula(), estudiante);
+
+            User empleado = new User("Empleado Demo", "empleado@ucv.ve", "V-26000000", UserRole.EMPLEADO, "", hashPassword("Empleado123"));
+            usuariosPorEmail.put(empleado.getEmail(), empleado);
+            usuariosPorCedula.put(empleado.getCedula(), empleado);
+
+            User conductor = new User("Carlos Gomez", "conductor@ucv.ve", "V-27000000", UserRole.CONDUCTOR, "", hashPassword("Conductor123"));
+            usuariosPorEmail.put(conductor.getEmail(), conductor);
+            usuariosPorCedula.put(conductor.getCedula(), conductor);
         } catch (Exception ignored) {}
     }
 }

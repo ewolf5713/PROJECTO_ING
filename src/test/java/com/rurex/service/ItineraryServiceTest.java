@@ -4,8 +4,13 @@ import com.rurex.model.Itinerary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.rurex.model.Trip;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -75,5 +80,54 @@ public class ItineraryServiceTest {
                 itineraryService.crearItinerario("Ruta Exceso", tomorrow, LocalTime.of(12, 0), LocalTime.of(13, 0), "UCV-234", "Chofer", 999)
         );
         assertTrue(ex.getMessage().contains("superan la capacidad"));
+    }
+
+    @Test
+    void testFiltrarPorConductorIgnoraMayusculas() {
+        List<Itinerary> lista = itineraryService.getItinerariosPorConductor("  carlos GOMEZ ");
+        assertEquals(1, lista.size());
+        assertEquals("La Rinconada - UCV", lista.get(0).getRutaNombre());
+        assertTrue(itineraryService.getItinerariosPorConductor("Nadie").isEmpty());
+        assertTrue(itineraryService.getItinerariosPorConductor(null).isEmpty());
+    }
+
+    @Test
+    void testProximoItinerarioEsElMasCercanoFuturo() {
+        LocalDate hoy = LocalDate.now().plusDays(1);
+        LocalDateTime ahora = LocalDateTime.of(hoy, LocalTime.of(6, 0));
+        Optional<Itinerary> proximo = itineraryService.getProximoItinerario(itineraryService.getItinerarios(), ahora);
+        assertTrue(proximo.isPresent());
+        assertEquals("La Rinconada - UCV", proximo.get().getRutaNombre());
+
+        LocalDateTime tarde = LocalDateTime.of(hoy, LocalTime.of(23, 0));
+        assertTrue(itineraryService.getProximoItinerario(itineraryService.getItinerarios(), tarde).isEmpty());
+    }
+
+    @Test
+    void testCuposYRutasDisponibles() {
+        assertEquals(102, itineraryService.getCuposTotales());
+        assertEquals(3, itineraryService.getCantidadRutas());
+    }
+
+    @Test
+    void testCrearTripDesdeRutaConOrigenYDestino() {
+        Itinerary it = itineraryService.getItinerariosPorConductor("Carlos Gomez").get(0);
+        Trip trip = itineraryService.crearTrip(it);
+        assertEquals(it.getId(), trip.id());
+        assertEquals("La Rinconada - UCV", trip.route());
+        assertEquals(2, trip.stops().size());
+        assertEquals("La Rinconada", trip.stops().get(0).name());
+        assertEquals("06:30", trip.stops().get(0).scheduledTime());
+        assertEquals("UCV", trip.stops().get(1).name());
+        assertEquals("07:30", trip.stops().get(1).scheduledTime());
+    }
+
+    @Test
+    void testCrearTripSinSeparadorUsaUnaParada() {
+        Itinerary it = itineraryService.crearItinerario("Circuito", LocalDate.now().plusDays(1), LocalTime.of(9, 0), LocalTime.of(10, 0), "UCV-234", "Ana", 10);
+        Trip trip = itineraryService.crearTrip(it);
+        assertEquals(1, trip.stops().size());
+        assertEquals("Circuito", trip.stops().get(0).name());
+        assertEquals("09:00", trip.stops().get(0).scheduledTime());
     }
 }

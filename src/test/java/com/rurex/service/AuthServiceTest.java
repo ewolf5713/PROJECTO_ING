@@ -59,4 +59,20 @@ public class AuthServiceTest {
         Optional<User> result = authService.autenticar("admin@ucv.ve", "PasswordEquivocado");
         assertTrue(result.isEmpty());
     }
+
+    @Test
+    void testSeededEmpleadoAuthenticates() {
+        Optional<User> result = authService.autenticar("empleado@ucv.ve", "Empleado123");
+        assertTrue(result.isPresent());
+        assertEquals("Empleado Demo", result.get().getNombreCompleto());
+        assertEquals(UserRole.EMPLEADO, result.get().getRol());
+    }
+
+    @Test
+    void testSeededConductorAuthenticates() {
+        Optional<User> result = authService.autenticar("conductor@ucv.ve", "Conductor123");
+        assertTrue(result.isPresent());
+        assertEquals("Carlos Gomez", result.get().getNombreCompleto());
+        assertEquals(UserRole.CONDUCTOR, result.get().getRol());
+    }
 }

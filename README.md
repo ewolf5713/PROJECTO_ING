@@ -37,3 +37,5 @@ mvn compile && java -cp target/classes com.rurex.TripDemo
 ## Cuentas demo para pruebas
 - Admin: `admin@ucv.ve` / `Admin123`
 - Estudiante: `estudiante@ucv.ve` / `Estudiante123`
+- Empleado: `empleado@ucv.ve` / `Empleado123`
+- Conductor: `conductor@ucv.ve` / `Conductor123`
