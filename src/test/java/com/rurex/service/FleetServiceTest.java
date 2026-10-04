@@ -36,6 +36,23 @@ public class FleetServiceTest {
     }
 
     @Test
+    void testListAllRegisteredUnits() {
+        List<TransportUnit> unidades = fleetService.getUnidades();
+        assertEquals(5, unidades.size());
+        assertEquals(unidades.size(), fleetService.filtrarPorEstado(null).size());
+    }
+
+    @Test
+    void testNewUnitShowsInListAndFilterRightAway() {
+        fleetService.registrarUnidad("UCV-321", "Yutong ZK6", 40, OperationalStatus.EN_MANTENIMIENTO);
+        assertEquals(6, fleetService.getUnidades().size());
+        assertTrue(fleetService.filtrarPorEstado(OperationalStatus.EN_MANTENIMIENTO).stream()
+                .anyMatch(u -> u.getPlaca().equals("UCV-321")));
+        assertTrue(fleetService.filtrarPorEstado(OperationalStatus.ACTIVA).stream()
+                .noneMatch(u -> u.getPlaca().equals("UCV-321")));
+    }
+
+    @Test
     void testFilterByOperationalStatus() {
         List<TransportUnit> active = fleetService.filtrarPorEstado(OperationalStatus.ACTIVA);
         assertFalse(active.isEmpty());
