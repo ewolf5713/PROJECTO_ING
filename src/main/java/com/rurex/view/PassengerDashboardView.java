@@ -188,7 +188,7 @@ public class PassengerDashboardView extends JFrame {
             panelTrip.add(new TripPassengerPanel(itineraryService.crearTrip(it), user.getEmail(), user.getNombreCompleto(), tripService), BorderLayout.CENTER);
             if (it.isExtraurbana()) {
                 JButton btnPagar = Estilos.botonPrimario("Pagar ticket (Bs. "
-                + authController.getPrecioTicketExtraurbano().toPlainString() + ")");
+                + authController.getPrecioTicketExtraurbano(user).toPlainString() + ")");
                 btnPagar.addActionListener(e -> pagarTicketExtraurbano(it));
                 JPanel sur = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 sur.setBackground(Color.WHITE);
@@ -303,7 +303,7 @@ public class PassengerDashboardView extends JFrame {
     }
 
     private void pagarTicketExtraurbano(Itinerary it) {
-        BigDecimal precio = authController.getPrecioTicketExtraurbano();
+        BigDecimal precio = authController.getPrecioTicketExtraurbano(user);
         BigDecimal saldo = authController.consultarSaldo(user);
         
         if (saldo.compareTo(precio) < 0) {

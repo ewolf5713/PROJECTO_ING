@@ -3,6 +3,7 @@ package com.rurex.model;
 public enum UserRole {
     ESTUDIANTE("Estudiante"),
     EMPLEADO("Empleado"),
+    PUBLICO_GENERAL("Público General"),
     ADMINISTRADOR("Administrador"),
     CONDUCTOR("Conductor"),
     SUPER_ADMIN("Super Administrador");

@@ -50,7 +50,7 @@ public class User {
         saldo = saldo.subtract(m);
     }
 
-    public boolean tieneMonedero() { return rol == UserRole.ESTUDIANTE || rol == UserRole.EMPLEADO; }
+    public boolean tieneMonedero() { return rol == UserRole.ESTUDIANTE || rol == UserRole.EMPLEADO || rol == UserRole.PUBLICO_GENERAL; }
 
     private BigDecimal normalizar(BigDecimal monto) {
         if (monto == null || monto.signum() <= 0) {

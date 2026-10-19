@@ -12,6 +12,7 @@ import com.rurex.view.LoginView;
 import com.rurex.view.PassengerDashboardView;
 import com.rurex.view.RegisterView;
 import com.rurex.view.Estilos;
+import com.rurex.view.TarifasView;
 import com.rurex.view.UsuariosView;
 
 import javax.swing.*;
@@ -130,5 +131,12 @@ public class AuthController {
     }
 
     public String pagarTicketExtraurbano(User user, String itinerarioId) { return authService.pagarTicketExtraurbano(user.getEmail(), itinerarioId); }
-    public BigDecimal getPrecioTicketExtraurbano() { return AuthService.PRECIO_TICKET_EXTRAURBANA;}
+    public BigDecimal getPrecioTicketExtraurbano(User user) { return authService.getTarifaService().precio(user.getRol()); }
+
+    public void mostrarTarifas() { new TarifasView(this).setVisible(true); }
+    public void configurarTarifas(BigDecimal base, int pctEstudiante, int pctEmpleado) { authService.getTarifaService().configurar(base, pctEstudiante, pctEmpleado); }
+    public BigDecimal getTarifaBase() { return authService.getTarifaService().getTarifaBase(); }
+    public int getPorcentajeEstudiante() { return authService.getTarifaService().getPorcentajeEstudiante(); }
+    public int getPorcentajeEmpleado() { return authService.getTarifaService().getPorcentajeEmpleado(); }
+    public BigDecimal precioTarifa(UserRole rol) { return authService.getTarifaService().precio(rol); }
 }

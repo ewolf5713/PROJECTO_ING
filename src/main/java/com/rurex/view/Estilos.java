@@ -621,6 +621,14 @@ public class Estilos {
         nav.add(btnItinerarios);
         nav.add(Box.createVerticalStrut(4));
         nav.add(btnRutas);
+        JButton btnTarifas = crearBotonNav("Tarifas", activo.equals("Tarifas"));
+        btnTarifas.addActionListener(e -> {
+            if (activo.equals("Tarifas")) return;
+            authController.mostrarTarifas();
+            ventana.setVisible(false);
+        });
+        nav.add(Box.createVerticalStrut(4));
+        nav.add(btnTarifas);
         if (superAdmin) {
             JButton btnUsuarios = crearBotonNav("Usuarios", activo.equals("Usuarios"));
             btnUsuarios.addActionListener(e -> {

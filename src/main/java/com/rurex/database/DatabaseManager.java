@@ -11,6 +11,7 @@ public class DatabaseManager {
     private final ItineraryDatabase itineraryDatabase;
     private final RutaDatabase rutaDatabase;
     private final TripDatabase tripDatabase;
+    private final TarifaDatabase tarifaDatabase;
 
     public DatabaseManager() {
         this("data");
@@ -23,6 +24,7 @@ public class DatabaseManager {
         this.itineraryDatabase = new ItineraryDatabase(dataDirectory + "/itinerarios.json");
         this.rutaDatabase = new RutaDatabase(dataDirectory + "/rutas.json");
         this.tripDatabase = new TripDatabase(dataDirectory + "/viajes.json");
+        this.tarifaDatabase = new TarifaDatabase(dataDirectory + "/tarifas.json");
     }
 
     public static synchronized DatabaseManager getInstance() {
@@ -43,6 +45,7 @@ public class DatabaseManager {
                          TripService tripService) {
         if (authService != null) {
             authService.setDatabase(userDatabase);
+            authService.getTarifaService().setDatabase(tarifaDatabase);
         }
         if (fleetService != null) {
             fleetService.setDatabase(fleetDatabase);
@@ -80,6 +83,10 @@ public class DatabaseManager {
 
     public TripDatabase getTripDatabase() {
         return tripDatabase;
+    }
+
+    public TarifaDatabase getTarifaDatabase() {
+        return tarifaDatabase;
     }
 
     public static void main(String[] args) {

@@ -46,6 +46,14 @@ public class AuthServiceTest {
     }
 
     @Test
+    void registroSinCarnetNiCorreoUcvAsignaPublicoGeneral() {
+        authService.registrarUsuario("Luis Diaz", "luis@gmail.com", "V-12345679", "", "clave123");
+        User u = authService.autenticar("luis@gmail.com", "clave123").get();
+        assertEquals(UserRole.PUBLICO_GENERAL, u.getRol());
+        assertTrue(u.tieneMonedero());
+    }
+
+    @Test
     void testRejectDuplicateEmail() {
         authService.registrarUsuario("Usuario Uno", "duplicado@ucv.ve", "V-11111111", "20-1111", "Clave123");
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
@@ -146,7 +154,22 @@ public class AuthServiceTest {
     void pagarTicketDescuentaElPrecio() {
         AuthService auth = new AuthService();
         auth.pagarTicketExtraurbano("estudiante@ucv.ve", "IT-1");
-        assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("15.00")));
+        assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("23.50")));
+    }
+
+    @Test
+    void pagarTicketCobraLaTarifaDelRol() {
+        AuthService auth = new AuthService();
+        auth.getTarifaService().configurar(new BigDecimal("20.00"), 10, 30);
+        auth.registrarUsuario("Luis Diaz", "luis@gmail.com", "V-12345679", "", "clave123");
+        auth.recargarMonedero("luis@gmail.com", "Banesco", "04141234567", "V12345679", "123456", new BigDecimal("50.00"));
+        auth.recargarMonedero("empleado@ucv.ve", "Banesco", "04141234567", "V26000000", "123456", new BigDecimal("10.00"));
+        auth.pagarTicketExtraurbano("estudiante@ucv.ve", "IT-1");
+        auth.pagarTicketExtraurbano("empleado@ucv.ve", "IT-1");
+        auth.pagarTicketExtraurbano("luis@gmail.com", "IT-1");
+        assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("23.00")));
+        assertEquals(0, auth.consultarSaldo("empleado@ucv.ve").compareTo(new BigDecimal("4.00")));
+        assertEquals(0, auth.consultarSaldo("luis@gmail.com").compareTo(new BigDecimal("30.00")));
     }
 
     @Test
@@ -154,7 +177,7 @@ public class AuthServiceTest {
         AuthService auth = new AuthService();
         auth.pagarTicketExtraurbano("estudiante@ucv.ve", "IT-1");
         assertThrows(IllegalStateException.class, () -> auth.pagarTicketExtraurbano("estudiante@ucv.ve", "IT-1"));
-        assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("15.00")));
+        assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("23.50")));
     }
 
     @Test

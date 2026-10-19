@@ -30,7 +30,7 @@ public class UsuariosView extends JFrame {
         JTable table = new JTable(tableModel);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        JComboBox<UserRole> comboRol = new JComboBox<>(new UserRole[]{UserRole.ESTUDIANTE, UserRole.EMPLEADO, UserRole.ADMINISTRADOR, UserRole.CONDUCTOR});
+        JComboBox<UserRole> comboRol = new JComboBox<>(new UserRole[]{UserRole.ESTUDIANTE, UserRole.EMPLEADO, UserRole.PUBLICO_GENERAL, UserRole.ADMINISTRADOR, UserRole.CONDUCTOR});
         Estilos.estilizarCombo(comboRol);
         JButton btnAsignar = Estilos.botonPrimario("Asignar");
         btnAsignar.addActionListener(e -> {

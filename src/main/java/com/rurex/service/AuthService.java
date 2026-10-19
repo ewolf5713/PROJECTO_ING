@@ -21,12 +21,16 @@ public class AuthService {
     private static final Pattern PATRON_CORREO = Pattern.compile("^[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\\.)?(ucv\\.ve|gmail\\.com)$");
     private static final Pattern PATRON_TELEFONO = Pattern.compile("^04(12|14|16|24|26)\\d{7}$");
     private static final Pattern PATRON_CEDULA_PM = Pattern.compile("^[VEve]-?\\d{6,9}$");
-    public static final BigDecimal PRECIO_TICKET_EXTRAURBANA = new BigDecimal("10.00");
     public static final List<BigDecimal> MONTOS_RECARGA = List.of(new BigDecimal("5.00"), new BigDecimal("10.00"), new BigDecimal("20.00"), new BigDecimal("50.00"));
     private final Map<String, User> usuariosPorEmail = new HashMap<>();
     private final Map<String, User> usuariosPorCedula = new HashMap<>();
     private UserDatabase database;
     private final Set<String> ticketsPagados = new HashSet<>();
+    private final TarifaService tarifaService = new TarifaService();
+
+    public TarifaService getTarifaService() {
+        return tarifaService;
+    }
 
     public AuthService() {
         cargarDatosPrueba();
@@ -69,7 +73,9 @@ public class AuthService {
         }
 
         String passHash = hashPassword(password);
-        UserRole rol = carnet != null && !carnet.isBlank() ? UserRole.ESTUDIANTE : UserRole.EMPLEADO;
+        UserRole rol = carnet != null && !carnet.isBlank() ? UserRole.ESTUDIANTE
+                : emailNorm.endsWith("@ucv.ve") || emailNorm.endsWith(".ucv.ve") ? UserRole.EMPLEADO
+                : UserRole.PUBLICO_GENERAL;
         User nuevo = new User(nombreCompleto.trim(), emailNorm, cedulaNorm, rol, carnet, passHash);
 
         usuariosPorEmail.put(emailNorm, nuevo);
@@ -170,11 +176,12 @@ public class AuthService {
     if (ticketsPagados.contains(clave)) {
         throw new IllegalStateException("Ya pagaste el ticket de este itinerario.");
     }
-    if (usuario.getSaldo().compareTo(PRECIO_TICKET_EXTRAURBANA) < 0) {
+    BigDecimal precio = tarifaService.precio(usuario.getRol());
+    if (usuario.getSaldo().compareTo(precio) < 0) {
         throw new IllegalStateException("Saldo insuficiente para pagar el ticket.");
     }
 
-    usuario.debitar(PRECIO_TICKET_EXTRAURBANA);
+    usuario.debitar(precio);
     ticketsPagados.add(clave);
     notificarCambio();
     return "TK-" + (100000 + new SecureRandom().nextInt(900000));

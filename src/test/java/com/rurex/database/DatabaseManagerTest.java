@@ -56,6 +56,21 @@ public class DatabaseManagerTest {
     }
 
     @Test
+    void testTarifaPersistence() {
+        AuthService authService = new AuthService();
+        dbManager.conectar(authService, null, null, null, null);
+        assertTrue(Files.exists(tempDir.resolve("tarifas.json")));
+
+        authService.getTarifaService().configurar(new java.math.BigDecimal("20.00"), 10, 60);
+
+        TarifaService otra = new TarifaService();
+        otra.setDatabase(dbManager.getTarifaDatabase());
+        assertEquals(new java.math.BigDecimal("20.00"), otra.getTarifaBase());
+        assertEquals(10, otra.getPorcentajeEstudiante());
+        assertEquals(60, otra.getPorcentajeEmpleado());
+    }
+
+    @Test
     void testRealtimeFleetPersistence() {
         FleetService fleetService = new FleetService();
         dbManager.conectar(null, fleetService, null, null, null);

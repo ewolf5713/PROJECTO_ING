@@ -88,6 +88,10 @@ mvn compile && java -cp target/classes com.rurex.TripDemo
 | Empleado | `empleado@ucv.ve` | `V-26000000` | `Empleado123` |
 | Conductor | `conductor@ucv.ve` | `V-27000000` | `Conductor123` |
 
+Al registrarse: con carnet → Estudiante; correo `ucv.ve` (o subdominio) → Empleado; cualquier otro → Público General.
+
+Tarifas (HU-011/012): el administrador fija la Tarifa Base Municipal en la sección **Tarifas**. El ticket extraurbano cobra del monedero según el rol: Estudiante 10–20 % (por defecto 15 %), Empleado/Profesor 30–60 % (por defecto 45 %), Público General 100 % (base por defecto Bs. 10.00, guardada en `data/tarifas.json`).
+
 Los datos se guardan y sincronizan en tiempo real en archivos JSON dentro del directorio `data/`.
 
 ## Estructura del proyecto
