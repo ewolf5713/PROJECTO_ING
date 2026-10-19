@@ -16,11 +16,6 @@ public class RutaController {
         this.rutaService = rutaService;
     }
 
-    /**
-     * Abre la ventana de rutas. Se crea una vista nueva cada vez para que el nombre
-     * de usuario y los datos estén siempre al día; las rutas viven en el servicio,
-     * así que no se pierde nada.
-     */
     public void mostrarVista() {
         if (vista != null) {
             vista.dispose();
@@ -43,8 +38,7 @@ public class RutaController {
         rutaService.actualizar(ruta, nombre, origen, destino, tipo, paradas);
     }
 
-    /** Activada = true pasa a false y viceversa. */
     public void alternarEstado(Ruta ruta) {
-        ruta.setActivada(!ruta.isActivada());
+        rutaService.alternarEstado(ruta);
     }
 }

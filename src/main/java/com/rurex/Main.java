@@ -4,6 +4,7 @@ import com.rurex.controller.AuthController;
 import com.rurex.controller.FleetController;
 import com.rurex.controller.ItineraryController;
 import com.rurex.controller.RutaController;
+import com.rurex.database.DatabaseManager;
 import com.rurex.service.AuthService;
 import com.rurex.service.FleetService;
 import com.rurex.service.ItineraryService;
@@ -20,14 +21,16 @@ public class Main {
             AuthService authService = new AuthService();
             FleetService fleetService = new FleetService();
             ItineraryService itineraryService = new ItineraryService(fleetService);
+            RutaService rutaService = new RutaService();
+            TripService tripService = new TripService((passengerId, tripId) -> true);
+
+            DatabaseManager.getInstance().conectar(authService, fleetService, itineraryService, rutaService, tripService);
 
             FleetController fleetController = new FleetController(fleetService);
             ItineraryController itineraryController = new ItineraryController(itineraryService);
-
-            RutaService rutaService = new RutaService();
             RutaController rutaController = new RutaController(rutaService);
             Estilos.setRutaController(rutaController);
-            TripService tripService = new TripService((passengerId, tripId) -> true);
+
             AuthController authController = new AuthController(authService, fleetController, itineraryController, fleetService, itineraryService, tripService);
 
             LoginView loginView = new LoginView(authController);

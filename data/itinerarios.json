@@ -1,0 +1,32 @@
+[
+  {
+    "id": "IT-C03BC",
+    "rutaNombre": "Plaza Venezuela - UCV",
+    "fecha": "2026-10-19",
+    "horaSalida": "07:30",
+    "horaLlegada": "08:15",
+    "placa": "UCV-234",
+    "conductor": "Jose Martinez",
+    "cuposDisponibles": 32
+  },
+  {
+    "id": "IT-04F0D",
+    "rutaNombre": "La Rinconada - UCV",
+    "fecha": "2026-10-19",
+    "horaSalida": "06:30",
+    "horaLlegada": "07:30",
+    "placa": "UCV-156",
+    "conductor": "Carlos Gomez",
+    "cuposDisponibles": 30
+  },
+  {
+    "id": "IT-0BBCF",
+    "rutaNombre": "Guarenas - UCV",
+    "fecha": "2026-10-19",
+    "horaSalida": "05:45",
+    "horaLlegada": "07:00",
+    "placa": "UCV-789",
+    "conductor": "Pedro Perez",
+    "cuposDisponibles": 40
+  }
+]

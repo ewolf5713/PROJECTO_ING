@@ -1,0 +1,42 @@
+[
+  {
+    "nombre": "Plaza Venezuela - UCV",
+    "origen": "Plaza Venezuela",
+    "destino": "Ciudad Universitaria",
+    "tipo": "URBANA",
+    "paradas": [],
+    "activada": true
+  },
+  {
+    "nombre": "La Rinconada - UCV",
+    "origen": "La Rinconada",
+    "destino": "Ciudad Universitaria",
+    "tipo": "URBANA",
+    "paradas": [],
+    "activada": true
+  },
+  {
+    "nombre": "Guarenas - UCV",
+    "origen": "Guarenas",
+    "destino": "Ciudad Universitaria",
+    "tipo": "EXTRAURBANA",
+    "paradas": [],
+    "activada": true
+  },
+  {
+    "nombre": "Los Teques - UCV",
+    "origen": "Los Teques",
+    "destino": "Ciudad Universitaria",
+    "tipo": "EXTRAURBANA",
+    "paradas": [],
+    "activada": true
+  },
+  {
+    "nombre": "Petare - UCV",
+    "origen": "Petare",
+    "destino": "Ciudad Universitaria",
+    "tipo": "URBANA",
+    "paradas": [],
+    "activada": true
+  }
+]

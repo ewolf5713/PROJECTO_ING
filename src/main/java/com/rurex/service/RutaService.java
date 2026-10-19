@@ -1,5 +1,6 @@
 package com.rurex.service;
 
+import com.rurex.database.RutaDatabase;
 import com.rurex.model.Ruta;
 import com.rurex.model.TipoRuta;
 
@@ -7,33 +8,50 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Guarda las rutas en memoria (igual que FleetService e ItineraryService).
- * Debe existir una sola instancia en toda la aplicación (se crea en Main).
- */
 public class RutaService {
+
     private final List<Ruta> rutas = new ArrayList<>();
+    private RutaDatabase database;
 
     public RutaService() {
         cargarRutasPorDefecto();
     }
 
-    /** Rutas de prueba (sin paradas). Borra este método cuando ya no las necesites. */
-    private void cargarRutasPorDefecto() {
-        rutas.add(new Ruta("Plaza Venezuela - UCV", "Plaza Venezuela", "Ciudad Universitaria", TipoRuta.URBANA));
-        rutas.add(new Ruta("La Rinconada - UCV", "La Rinconada", "Ciudad Universitaria", TipoRuta.URBANA));
-        rutas.add(new Ruta("Guarenas - UCV", "Guarenas", "Ciudad Universitaria", TipoRuta.EXTRAURBANA));
-        rutas.add(new Ruta("Los Teques - UCV", "Los Teques", "Ciudad Universitaria", TipoRuta.EXTRAURBANA));
-        rutas.add(new Ruta("Petare - UCV", "Petare", "Ciudad Universitaria", TipoRuta.URBANA));
+    public RutaService(RutaDatabase database) {
+        this.database = database;
+        if (database != null && database.existe()) {
+            cargarRutas(database.cargar());
+        } else {
+            cargarRutasPorDefecto();
+            if (database != null) {
+                database.guardar(rutas);
+            }
+        }
     }
 
-    /** Todas las rutas, activas e inactivas. */
-    public List<Ruta> getRutas() {
+    public void setDatabase(RutaDatabase database) {
+        this.database = database;
+        if (database != null) {
+            if (database.existe()) {
+                cargarRutas(database.cargar());
+            } else {
+                database.guardar(rutas);
+            }
+        }
+    }
+
+    public synchronized void cargarRutas(List<Ruta> lista) {
+        rutas.clear();
+        if (lista != null) {
+            rutas.addAll(lista);
+        }
+    }
+
+    public synchronized List<Ruta> getRutas() {
         return Collections.unmodifiableList(rutas);
     }
 
-    /** Solo las rutas con Activada = true (para usar, por ejemplo, al crear itinerarios). */
-    public List<Ruta> getRutasActivas() {
+    public synchronized List<Ruta> getRutasActivas() {
         List<Ruta> activas = new ArrayList<>();
         for (Ruta r : rutas) {
             if (r.isActivada()) {
@@ -43,19 +61,30 @@ public class RutaService {
         return activas;
     }
 
-    public void agregar(Ruta nueva) {
+    public synchronized void agregar(Ruta nueva) {
         validarNombreLibre(nueva.getNombre(), null);
         rutas.add(nueva);
+        notificarCambio();
     }
 
-    /**
-     * Modifica una ruta existente. El nuevo nombre no puede pertenecer a otra ruta
-     * (sí puede conservar el suyo). Si algo falla, la ruta no cambia.
-     */
-    public void actualizar(Ruta ruta, String nombre, String origen, String destino,
-                           TipoRuta tipo, List<String> paradas) {
+    public synchronized void actualizar(Ruta ruta, String nombre, String origen, String destino,
+                                         TipoRuta tipo, List<String> paradas) {
         validarNombreLibre(nombre, ruta);
         ruta.actualizar(nombre, origen, destino, tipo, paradas);
+        notificarCambio();
+    }
+
+    public synchronized void alternarEstado(Ruta ruta) {
+        if (ruta != null) {
+            ruta.setActivada(!ruta.isActivada());
+            notificarCambio();
+        }
+    }
+
+    private void notificarCambio() {
+        if (database != null) {
+            database.guardar(rutas);
+        }
     }
 
     private void validarNombreLibre(String nombre, Ruta excepto) {
@@ -68,5 +97,13 @@ public class RutaService {
                 throw new IllegalArgumentException("Ya existe una ruta con ese nombre.");
             }
         }
+    }
+
+    private void cargarRutasPorDefecto() {
+        rutas.add(new Ruta("Plaza Venezuela - UCV", "Plaza Venezuela", "Ciudad Universitaria", TipoRuta.URBANA));
+        rutas.add(new Ruta("La Rinconada - UCV", "La Rinconada", "Ciudad Universitaria", TipoRuta.URBANA));
+        rutas.add(new Ruta("Guarenas - UCV", "Guarenas", "Ciudad Universitaria", TipoRuta.EXTRAURBANA));
+        rutas.add(new Ruta("Los Teques - UCV", "Los Teques", "Ciudad Universitaria", TipoRuta.EXTRAURBANA));
+        rutas.add(new Ruta("Petare - UCV", "Petare", "Ciudad Universitaria", TipoRuta.URBANA));
     }
 }

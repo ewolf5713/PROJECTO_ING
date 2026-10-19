@@ -1,0 +1,32 @@
+[
+  {
+    "placa": "UCV-234",
+    "modelo": "Mercedes-Benz OF-1721",
+    "capacidad": 32,
+    "estado": "ACTIVA"
+  },
+  {
+    "placa": "UCV-156",
+    "modelo": "Volkswagen 17.230",
+    "capacidad": 30,
+    "estado": "ACTIVA"
+  },
+  {
+    "placa": "UCV-789",
+    "modelo": "Iveco Daily",
+    "capacidad": 40,
+    "estado": "ACTIVA"
+  },
+  {
+    "placa": "UCV-445",
+    "modelo": "Mercedes-Benz Sprinter",
+    "capacidad": 28,
+    "estado": "EN_MANTENIMIENTO"
+  },
+  {
+    "placa": "UCV-992",
+    "modelo": "Ford Transit",
+    "capacidad": 25,
+    "estado": "FUERA_DE_SERVICIO"
+  }
+]
