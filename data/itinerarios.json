@@ -7,7 +7,8 @@
     "horaLlegada": "08:15",
     "placa": "UCV-234",
     "conductor": "Jose Martinez",
-    "cuposDisponibles": 32
+    "cuposDisponibles": 32,
+    "extraurbana": false
   },
   {
     "id": "IT-04F0D",
@@ -17,7 +18,8 @@
     "horaLlegada": "07:30",
     "placa": "UCV-156",
     "conductor": "Carlos Gomez",
-    "cuposDisponibles": 30
+    "cuposDisponibles": 30,
+    "extraurbana": false
   },
   {
     "id": "IT-0BBCF",
@@ -27,6 +29,7 @@
     "horaLlegada": "07:00",
     "placa": "UCV-789",
     "conductor": "Pedro Perez",
-    "cuposDisponibles": 40
+    "cuposDisponibles": 40,
+    "extraurbana": true
   }
 ]
