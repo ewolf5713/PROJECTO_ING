@@ -1,5 +1,6 @@
 package com.rurex.service;
 
+import com.rurex.database.TripDatabase;
 import com.rurex.model.Trip;
 import com.rurex.model.TripStage;
 
@@ -14,19 +15,45 @@ public final class TripService {
     private final TripReservationVerifier reservationVerifier;
     private final Map<String, TripState> states = new ConcurrentHashMap<>();
     private final List<TripListener> listeners = new CopyOnWriteArrayList<>();
+    private TripDatabase database;
 
     public TripService(TripReservationVerifier reservationVerifier) {
-        if (reservationVerifier == null) throw new IllegalArgumentException("El verificador es obligatorio.");
+        if (reservationVerifier == null) {
+            throw new IllegalArgumentException("El verificador es obligatorio.");
+        }
         this.reservationVerifier = reservationVerifier;
+    }
+
+    public TripService(TripReservationVerifier reservationVerifier, TripDatabase database) {
+        this(reservationVerifier);
+        this.database = database;
+        if (database != null && database.existe()) {
+            states.putAll(database.cargar());
+        }
+    }
+
+    public void setDatabase(TripDatabase database) {
+        this.database = database;
+        if (database != null && database.existe()) {
+            states.putAll(database.cargar());
+        }
     }
 
     public TripState stateFor(Trip trip) {
         requireTrip(trip);
-        return states.computeIfAbsent(trip.id(), id -> initialState(trip));
+        return states.computeIfAbsent(trip.id(), id -> {
+            TripState init = initialState(trip);
+            if (database != null) {
+                database.guardar(states);
+            }
+            return init;
+        });
     }
 
     public Optional<TripState> currentState(String tripId) {
-        if (tripId == null) return Optional.empty();
+        if (tripId == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(states.get(tripId));
     }
 
@@ -40,9 +67,15 @@ public final class TripService {
 
     public synchronized TripState updateState(Trip trip, TripStage nextStage, int stopIndex, int etaMinutes) {
         requireTrip(trip);
-        if (nextStage == null) throw new IllegalArgumentException("Debe seleccionar un estado.");
-        if (etaMinutes < 0) throw new IllegalArgumentException("El estimado no puede ser negativo.");
-        if (stopIndex < 0 || stopIndex >= trip.stops().size()) throw new IllegalArgumentException("Parada no válida.");
+        if (nextStage == null) {
+            throw new IllegalArgumentException("Debe seleccionar un estado.");
+        }
+        if (etaMinutes < 0) {
+            throw new IllegalArgumentException("El estimado no puede ser negativo.");
+        }
+        if (stopIndex < 0 || stopIndex >= trip.stops().size()) {
+            throw new IllegalArgumentException("Parada no válida.");
+        }
         if (nextStage == TripStage.APPROACHING_DESTINATION && stopIndex != trip.stops().size() - 1) {
             throw new IllegalStateException("El destino solo puede alcanzarse en la última parada.");
         }
@@ -51,25 +84,38 @@ public final class TripService {
         if (!current.stage().canTransitionTo(nextStage)) {
             throw new IllegalStateException("No se puede pasar de " + current.stage().label() + " a " + nextStage.label() + ".");
         }
-        if (stopIndex < current.stopIndex()) throw new IllegalStateException("La parada actual no puede retroceder.");
+        if (stopIndex < current.stopIndex()) {
+            throw new IllegalStateException("La parada actual no puede retroceder.");
+        }
 
         TripState updated = new TripState(trip.id(), nextStage, stopIndex, etaMinutes, LocalDateTime.now());
         states.put(trip.id(), updated);
-        for (TripListener listener : listeners) listener.stateChanged(updated);
+        for (TripListener listener : listeners) {
+            listener.stateChanged(updated);
+        }
+        if (database != null) {
+            database.guardar(states);
+        }
         return updated;
     }
 
     public void addListener(TripListener listener) {
-        if (listener != null) listeners.add(listener);
+        if (listener != null) {
+            listeners.add(listener);
+        }
     }
 
-    public void removeListener(TripListener listener) { listeners.remove(listener); }
+    public void removeListener(TripListener listener) {
+        listeners.remove(listener);
+    }
 
     private TripState initialState(Trip trip) {
         return new TripState(trip.id(), TripStage.AT_STOP, 0, 0, LocalDateTime.now());
     }
 
     private void requireTrip(Trip trip) {
-        if (trip == null) throw new IllegalArgumentException("Recorrido no válido.");
+        if (trip == null) {
+            throw new IllegalArgumentException("Recorrido no válido.");
+        }
     }
 }

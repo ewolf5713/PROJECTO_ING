@@ -2,13 +2,16 @@ package com.rurex.view;
 
 import com.rurex.controller.ItineraryController;
 import com.rurex.model.Itinerary;
+import com.rurex.model.Ruta;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class ItineraryView extends JFrame {
@@ -26,20 +29,20 @@ public class ItineraryView extends JFrame {
         Estilos.cerrarVolviendoAlInicio(this);
         setLocationRelativeTo(null);
 
-        JTextField txtRuta = Estilos.campo("");
-        txtRuta.setText("Plaza Venezuela - UCV");
-        JTextField txtFecha = Estilos.campo("");
-        txtFecha.setText(LocalDate.now().toString());
-        JTextField txtSalida = Estilos.campo("");
-        txtSalida.setText("07:30");
-        JTextField txtLlegada = Estilos.campo("");
-        txtLlegada.setText("08:15");
-        JTextField txtUnidad = Estilos.campo("");
-        txtUnidad.setText("UCV-234");
-        JTextField txtChofer = Estilos.campo("");
-        txtChofer.setText("Jose Martinez");
+        List<Ruta> rutas = controller.getRutasActivas();
+        JComboBox<String> comboRuta = new JComboBox<>(rutas.stream().map(Ruta::getNombre).toArray(String[]::new));
+        JComboBox<String> comboUnidad = new JComboBox<>(controller.getPlacasActivas().toArray(String[]::new));
+        JComboBox<String> comboChofer = new JComboBox<>(controller.getConductores().toArray(String[]::new));
+        Estilos.estilizarCombo(comboRuta);
+        Estilos.estilizarCombo(comboUnidad);
+        Estilos.estilizarCombo(comboChofer);
+        JSpinner spFecha = spinner("yyyy-MM-dd", new Date());
+        JSpinner spSalida = spinner("HH:mm", hora(7, 30));
+        JSpinner spLlegada = spinner("HH:mm", hora(8, 15));
         JTextField txtCupos = Estilos.campo("");
-        txtCupos.setText("32");
+        Runnable cuposDeUnidad = () -> txtCupos.setText(comboUnidad.getSelectedItem() == null ? "" : String.valueOf(controller.getCapacidad((String) comboUnidad.getSelectedItem())));
+        comboUnidad.addActionListener(e -> cuposDeUnidad.run());
+        cuposDeUnidad.run();
 
         JButton btnGuardar = Estilos.botonPrimario("Guardar Itinerario");
         JPanel panelBoton = new JPanel(new BorderLayout());
@@ -48,14 +51,14 @@ public class ItineraryView extends JFrame {
 
         JPanel formulario = Estilos.crearFormulario();
         formulario.add(Estilos.filaColumnas(
-                Estilos.etiquetaCampo("Ruta:", txtRuta),
-                Estilos.etiquetaCampo("Fecha (AAAA-MM-DD):", txtFecha),
-                Estilos.etiquetaCampo("Hora Salida (HH:MM):", txtSalida),
-                Estilos.etiquetaCampo("Hora Llegada (HH:MM):", txtLlegada)));
+                Estilos.etiquetaCampo("Ruta:", comboRuta),
+                Estilos.etiquetaCampo("Fecha:", spFecha),
+                Estilos.etiquetaCampo("Hora Salida:", spSalida),
+                Estilos.etiquetaCampo("Hora Llegada:", spLlegada)));
         formulario.add(Box.createVerticalStrut(12));
         formulario.add(Estilos.filaColumnas(
-                Estilos.etiquetaCampo("Unidad (Placa):", txtUnidad),
-                Estilos.etiquetaCampo("Conductor:", txtChofer),
+                Estilos.etiquetaCampo("Unidad:", comboUnidad),
+                Estilos.etiquetaCampo("Conductor:", comboChofer),
                 Estilos.etiquetaCampo("Cupos:", txtCupos),
                 panelBoton));
 
@@ -92,26 +95,37 @@ public class ItineraryView extends JFrame {
 
         btnGuardar.addActionListener(e -> {
             try {
-                LocalDate date = LocalDate.parse(txtFecha.getText().trim());
-                LocalTime dep = LocalTime.parse(txtSalida.getText().trim());
-                LocalTime arr = txtLlegada.getText().isBlank() ? null : LocalTime.parse(txtLlegada.getText().trim());
                 int seats = Integer.parseInt(txtCupos.getText().trim());
-
+                int i = comboRuta.getSelectedIndex();
                 controller.guardarItinerario(
-                        txtRuta.getText(),
-                        date,
-                        dep,
-                        arr,
-                        txtUnidad.getText(),
-                        txtChofer.getText(),
+                        i < 0 ? null : rutas.get(i),
+                        aLocal(spFecha).toLocalDate(),
+                        aLocal(spSalida).toLocalTime().withSecond(0).withNano(0),
+                        aLocal(spLlegada).toLocalTime().withSecond(0).withNano(0),
+                        (String) comboUnidad.getSelectedItem(),
+                        (String) comboChofer.getSelectedItem(),
                         seats
                 );
-            } catch (DateTimeParseException ex) {
-                JOptionPane.showMessageDialog(this, "Formato inválido (AAAA-MM-DD y HH:MM)", "Error", JOptionPane.ERROR_MESSAGE);
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Cupos debe ser un número.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
+    }
+
+    private static JSpinner spinner(String formato, Date valor) {
+        JSpinner s = new JSpinner(new SpinnerDateModel(valor, null, null, Calendar.MINUTE));
+        s.setEditor(new JSpinner.DateEditor(s, formato));
+        s.setFont(Estilos.fuente(Font.PLAIN, 13));
+        s.setPreferredSize(new Dimension(180, 34));
+        return s;
+    }
+
+    private static Date hora(int h, int m) {
+        return Date.from(LocalDate.now().atTime(h, m).atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    private static LocalDateTime aLocal(JSpinner s) {
+        return LocalDateTime.ofInstant(((Date) s.getValue()).toInstant(), ZoneId.systemDefault());
     }
 
     public void actualizarTabla() {

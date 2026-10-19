@@ -1,0 +1,59 @@
+[
+  {
+    "nombreCompleto": "Empleado Demo",
+    "email": "empleado@ucv.ve",
+    "cedula": "V-26000000",
+    "rol": "EMPLEADO",
+    "carnet": "",
+    "passwordHash": "oiLevTh1h9eIYvc8QsVIgQ==:CRLbAvSLd7pysg3JxcTXnRIx/TBCwSjj5AZP8yZS3Js="
+  },
+  {
+    "nombreCompleto": "Super Administrador",
+    "email": "superadmin@ucv.ve",
+    "cedula": "V-00000000",
+    "rol": "SUPER_ADMIN",
+    "carnet": "",
+    "passwordHash": "D1HWyiDOShNX0D19ipm1gw==:xzuy6V2QSue+/q2TJr7FwRPDgiLqdn5RzDxWpQrHbCE="
+  },
+  {
+    "nombreCompleto": "Admin UCV",
+    "email": "admin@ucv.ve",
+    "cedula": "V-00000001",
+    "rol": "ADMINISTRADOR",
+    "carnet": "",
+    "passwordHash": "lidQQL3DYNH6zF6Sbw1g7A==:ebTDOpOWXXVDzsP1W5RqMVVzpGL6S4LxkV3S5N5DcMc="
+  },
+  {
+    "nombreCompleto": "Estudiante Demo",
+    "email": "estudiante@ucv.ve",
+    "cedula": "V-25000000",
+    "rol": "ESTUDIANTE",
+    "carnet": "20-12345",
+    "passwordHash": "ueXzY369VGZ6BpkcOSSwTQ==:OyM/1gxC6nZxcr1c2UalCQiOUdCYvCD66SHTMKhbUXk=",
+    "saldo": "25.00"
+  },
+  {
+    "nombreCompleto": "Carlos Gomez",
+    "email": "conductor@ucv.ve",
+    "cedula": "V-27000000",
+    "rol": "CONDUCTOR",
+    "carnet": "",
+    "passwordHash": "diz6TlyZ0WwbF+ylRmwsXw==:FPEsaBVxrK0qsOfryGzkQ2qwMGlCagl2SbQfu8b38o4="
+  },
+  {
+    "nombreCompleto": "Jose Martinez",
+    "email": "jose.martinez@ucv.ve",
+    "cedula": "V-27000001",
+    "rol": "CONDUCTOR",
+    "carnet": "",
+    "passwordHash": "CFAXXy2QNJEjGKKPH62x4w==:TDW2negLGH25bWgHZ3bwTe4HcryQjFvD6jCTRPbvnN0="
+  },
+  {
+    "nombreCompleto": "Pedro Perez",
+    "email": "pedro.perez@ucv.ve",
+    "cedula": "V-27000002",
+    "rol": "CONDUCTOR",
+    "carnet": "",
+    "passwordHash": "IKLjzIoBHF++FJkFnRwDIA==:T8R9XgqW+cdi8RLeIS93L+vyq9QDC31XR3itdE2ujQk="
+  }
+]

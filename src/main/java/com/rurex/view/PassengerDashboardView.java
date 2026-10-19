@@ -17,10 +17,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.math.BigDecimal;
 
 public class PassengerDashboardView extends JFrame {
 
     private final User user;
+    private final AuthController authController;
     private final ItineraryService itineraryService;
     private final TripService tripService;
     private final CardLayout cardLayout = new CardLayout();
@@ -33,6 +35,7 @@ public class PassengerDashboardView extends JFrame {
     private final JLabel lblCupos = crearValor();
     private final JLabel lblEstado = crearValor();
     private final JLabel lblEstadoRuta = crearCaption();
+    private final JLabel lblSaldo = crearValor();
     private final DefaultTableModel modeloInicio = crearModeloTabla();
     private final DefaultTableModel modeloItinerarios = crearModeloTabla();
     private List<Itinerary> itinerarios;
@@ -42,6 +45,7 @@ public class PassengerDashboardView extends JFrame {
         this.user = user;
         this.itineraryService = itineraryService;
         this.tripService = tripService;
+        this.authController = authController;
 
         setTitle("Transporte UCV - Panel Pasajero");
         setSize(1100, 700);
@@ -109,22 +113,26 @@ public class PassengerDashboardView extends JFrame {
     private JPanel crearPanelInicio() {
         JPanel panel = new JPanel(new BorderLayout(0, 16));
         panel.setBackground(Estilos.FONDO);
-
+        
         JPanel filaStats = new JPanel(new GridLayout(1, 4, 12, 0));
         filaStats.setBackground(Estilos.FONDO);
         filaStats.add(crearCardStat("Próxima Salida", lblProximaSalida, lblProximaRuta));
         filaStats.add(crearCardStat("Rutas Disponibles", lblRutas, crearCaptionFijo("Rutas con itinerarios")));
         filaStats.add(crearCardStat("Cupos Disponibles", lblCupos, crearCaptionFijo("En todos los itinerarios")));
+        filaStats.add(crearCardStat("Saldo del Monedero", lblSaldo, crearCaptionFijo("Disponible para pagar")));
         filaStats.add(crearCardStat("Estado del Recorrido", lblEstado, lblEstadoRuta));
 
         JPanel accesos = new JPanel(new GridLayout(1, 2, 12, 0));
         accesos.setBackground(Color.WHITE);
         JButton btnItinerarios = Estilos.botonPrimario("Consultar Itinerarios");
         JButton btnEstado = Estilos.botonOutline("Estado del Recorrido");
+        JButton btnRecargar = Estilos.botonPrimario("Recargar Monedero"); 
         btnItinerarios.addActionListener(e -> irA.accept("Itinerarios"));
         btnEstado.addActionListener(e -> irA.accept("Estado del Recorrido"));
+        btnRecargar.addActionListener(e -> mostrarDialogoRecarga()); 
         accesos.add(btnItinerarios);
         accesos.add(btnEstado);
+        accesos.add(btnRecargar);
 
         JPanel norte = new JPanel(new BorderLayout(0, 16));
         norte.setBackground(Estilos.FONDO);
@@ -178,6 +186,15 @@ public class PassengerDashboardView extends JFrame {
         if (indice >= 0 && indice < itinerarios.size()) {
             Itinerary it = itinerarios.get(indice);
             panelTrip.add(new TripPassengerPanel(itineraryService.crearTrip(it), user.getEmail(), user.getNombreCompleto(), tripService), BorderLayout.CENTER);
+            if (it.isExtraurbana()) {
+                JButton btnPagar = Estilos.botonPrimario("Pagar ticket (Bs. "
+                + authController.getPrecioTicketExtraurbano(user).toPlainString() + ")");
+                btnPagar.addActionListener(e -> pagarTicketExtraurbano(it));
+                JPanel sur = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                sur.setBackground(Color.WHITE);
+                sur.add(btnPagar);
+                panelTrip.add(sur, BorderLayout.SOUTH);
+            }
         } else {
             panelTrip.add(Estilos.etiqueta("No hay itinerarios disponibles.", Font.PLAIN, 13, Estilos.GRIS), BorderLayout.NORTH);
         }
@@ -199,7 +216,45 @@ public class PassengerDashboardView extends JFrame {
         }
     }
 
+    public void actualizarSaldo() {
+        try { lblSaldo.setText("Bs. " + authController.consultarSaldo(user).toPlainString()); }
+        catch (IllegalStateException | IllegalArgumentException ex) { lblSaldo.setText("-"); }
+    }
+
+    private void mostrarDialogoRecarga() {
+        JComboBox<String> comboBanco = new JComboBox<>(new String[]
+            {"Banesco", "Mercantil", "Provincial", "Banco de Venezuela", "BNC", "Bancamiga"});
+        JTextField txtTelefono = Estilos.campo("04141234567");
+        JTextField txtCedula = Estilos.campo("V-12345678");
+        JTextField txtReferencia = Estilos.campo("123456");
+        JComboBox<BigDecimal> comboMonto = new JComboBox<>(authController.getMontosRecarga().toArray(new BigDecimal[0]));
+        Estilos.estilizarCombo(comboBanco);
+        Estilos.estilizarCombo(comboMonto);
+
+        JPanel form = Estilos.crearFormulario();
+        Estilos.agregarCampo(form, "Banco:", comboBanco);
+        Estilos.agregarCampo(form, "Teléfono:", txtTelefono);
+        Estilos.agregarCampo(form, "Cédula:", txtCedula);
+        Estilos.agregarCampo(form, "Número de referencia:", txtReferencia);
+        Estilos.agregarCampo(form, "Monto (Bs.):", comboMonto);
+
+        while(true) {
+            int opcion = JOptionPane.showConfirmDialog(this, form, "Recarga con Pago Móvil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (opcion != JOptionPane.OK_OPTION) return;
+
+            try {
+                String referencia = authController.recargarMonedero(
+                    user, (String) comboBanco.getSelectedItem(), txtTelefono.getText(), txtCedula.getText(), txtReferencia.getText(), (BigDecimal) comboMonto.getSelectedItem());
+                    actualizarSaldo();
+                    JOptionPane.showMessageDialog(this, "Recarga exitosa.\nReferencia: " + referencia, "Listo", JOptionPane.INFORMATION_MESSAGE);
+                    return;
+            }
+            catch (IllegalArgumentException | IllegalStateException ex) { JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); }
+        }
+    }
+
     private void cargarDatos() {
+        actualizarSaldo();
         itinerarios = itineraryService.getItinerarios();
 
         Optional<Itinerary> proximo = itineraryService.getProximoItinerario(itinerarios, LocalDateTime.now());
@@ -246,4 +301,33 @@ public class PassengerDashboardView extends JFrame {
         }
         return opciones;
     }
+
+    private void pagarTicketExtraurbano(Itinerary it) {
+        BigDecimal precio = authController.getPrecioTicketExtraurbano(user);
+        BigDecimal saldo = authController.consultarSaldo(user);
+        
+        if (saldo.compareTo(precio) < 0) {
+            int opcion = JOptionPane.showConfirmDialog(this, "Saldo insuficiente.\nTu saldo es Bs. " + saldo.toPlainString()
+                        + " y el ticket cuesta Bs. " + precio.toPlainString()
+                        + ".\n¿Deseas recargar ahora?","Saldo insuficiente", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        
+        if (opcion == JOptionPane.YES_OPTION) mostrarDialogoRecarga();
+        return;
+    }
+
+    int confirmar = JOptionPane.showConfirmDialog(this,
+            "¿Pagar el ticket de " + it.getRutaNombre() + " por Bs. " + precio.toPlainString() + "?",
+            "Confirmar pago", JOptionPane.YES_NO_OPTION);
+    if (confirmar != JOptionPane.YES_OPTION) return;
+
+    try {
+        String referencia = authController.pagarTicketExtraurbano(user, it.getId());
+        actualizarSaldo();
+        JOptionPane.showMessageDialog(this, "Ticket pagado. Referencia: " + referencia,
+                "Listo", JOptionPane.INFORMATION_MESSAGE);
+    } catch (IllegalStateException | IllegalArgumentException ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
 }
+}
+

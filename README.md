@@ -26,7 +26,7 @@ Alcance del Incremento 1:
 
 | Modulo | Historias de usuario | Que hace |
 |---|---|---|
-| Acceso y Autenticacion | HU-001, HU-002 | Registro con password hasheado (PBKDF2) y login con panel segun rol: administrador, pasajero (estudiante o empleado) y conductor |
+| Acceso y Autenticacion | HU-001, HU-002 | Registro con password hasheado (PBKDF2) y login con panel segun rol: administrador, pasajero (estudiante o empleado) y conductor. El rol se asigna automaticamente al registrarse (carnet = estudiante, sin carnet = empleado) y solo el Super Administrador puede cambiarlo desde "Usuarios" |
 | Gestion de Flota | HU-022, HU-023, HU-024 | Registro de unidades con placa unica, listado con filtro por estado operativo y edicion de modelo, capacidad y estado |
 | Control de Itinerarios | HU-010 | Crear y eliminar itinerarios con unidades activas, limite de cupos por capacidad y bloqueo de cruces de horario por unidad o conductor |
 
@@ -80,25 +80,31 @@ mvn compile && java -cp target/classes com.rurex.TripDemo
 
 ## Cuentas demo
 
-| Rol | Correo | Password |
-|---|---|---|
-| Administrador | `admin@ucv.ve` | `Admin123` |
-| Estudiante | `estudiante@ucv.ve` | `Estudiante123` |
-| Empleado | `empleado@ucv.ve` | `Empleado123` |
-| Conductor | `conductor@ucv.ve` | `Conductor123` |
+| Rol | Usuario / Correo | Cédula | Password |
+|---|---|---|---|
+| Super Administrador | `superadmin` / `superadmin@ucv.ve` | `V-00000000` | `Superadmin123` |
+| Administrador | `admin@ucv.ve` | `V-00000001` | `Admin123` |
+| Estudiante | `estudiante@ucv.ve` | `V-25000000` | `Estudiante123` |
+| Empleado | `empleado@ucv.ve` | `V-26000000` | `Empleado123` |
+| Conductor | `conductor@ucv.ve` | `V-27000000` | `Conductor123` |
 
-Los datos viven en memoria, al cerrar la app se pierden los registros nuevos.
+Al registrarse: con carnet → Estudiante; correo `ucv.ve` (o subdominio) → Empleado; cualquier otro → Público General.
+
+Tarifas (HU-011/012): el administrador fija la Tarifa Base Municipal en la sección **Tarifas**. El ticket extraurbano cobra del monedero según el rol: Estudiante 10–20 % (por defecto 15 %), Empleado/Profesor 30–60 % (por defecto 45 %), Público General 100 % (base por defecto Bs. 10.00, guardada en `data/tarifas.json`).
+
+Los datos se guardan y sincronizan en tiempo real en archivos JSON dentro del directorio `data/`.
 
 ## Estructura del proyecto
 
 ```
 src/main/java/com/rurex
 ├── Main.java          punto de entrada
-├── model/             entidades: User, TransportUnit, Itinerary, Trip
+├── database/          capa de persistencia en base de datos JSON en tiempo real
+├── model/             entidades: User, TransportUnit, Itinerary, Ruta, Trip
 ├── service/           reglas de negocio y validaciones
 ├── controller/        conecta las vistas con los services
 └── view/              pantallas Swing y estilos compartidos
-src/test/java/com/rurex/service   pruebas unitarias JUnit
+src/test/java/com/rurex pruebas unitarias JUnit (servicios y bases de datos JSON)
 ```
 
 ## Tests

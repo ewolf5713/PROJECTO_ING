@@ -1,5 +1,6 @@
 package com.rurex.service;
 
+import com.rurex.database.ItineraryDatabase;
 import com.rurex.model.Itinerary;
 import com.rurex.model.TransportUnit;
 import com.rurex.model.Trip;
@@ -13,13 +14,45 @@ public class ItineraryService {
 
     private final List<Itinerary> itinerariosList = new ArrayList<>();
     private final FleetService fleetService;
+    private ItineraryDatabase database;
 
     public ItineraryService(FleetService fleetService) {
         this.fleetService = fleetService;
         cargarItinerariosDemo();
     }
 
-    public synchronized Itinerary crearItinerario(String ruta, LocalDate fecha, LocalTime salida, LocalTime llegada, String placa, String chofer, Integer cupos) {
+    public ItineraryService(FleetService fleetService, ItineraryDatabase database) {
+        this.fleetService = fleetService;
+        this.database = database;
+        if (database != null && database.existe()) {
+            cargarItinerarios(database.cargar(fleetService));
+        } else {
+            cargarItinerariosDemo();
+            if (database != null) {
+                database.guardar(itinerariosList);
+            }
+        }
+    }
+
+    public void setDatabase(ItineraryDatabase database) {
+        this.database = database;
+        if (database != null) {
+            if (database.existe()) {
+                cargarItinerarios(database.cargar(fleetService));
+            } else {
+                database.guardar(itinerariosList);
+            }
+        }
+    }
+
+    public synchronized void cargarItinerarios(List<Itinerary> lista) {
+        itinerariosList.clear();
+        if (lista != null) {
+            itinerariosList.addAll(lista);
+        }
+    }
+
+    public synchronized Itinerary crearItinerario(String ruta, LocalDate fecha, LocalTime salida, LocalTime llegada, String placa, String chofer, Integer cupos, boolean extraurbana) {
         if (ruta == null || ruta.isBlank()) {
             throw new IllegalArgumentException("La ruta es obligatoria.");
         }
@@ -57,18 +90,10 @@ public class ItineraryService {
         }
 
         String id = "IT-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
-        Itinerary nuevo = new Itinerary(
-                id,
-                ruta.trim(),
-                fecha,
-                salida,
-                llegadaFinal,
-                unidad,
-                choferFinal,
-                cuposFinal
-        );
+        Itinerary nuevo = new Itinerary(id, ruta.trim(), fecha, salida, llegadaFinal, unidad, choferFinal, cuposFinal, extraurbana);
 
         itinerariosList.add(nuevo);
+        notificarCambio();
         return nuevo;
     }
 
@@ -78,7 +103,9 @@ public class ItineraryService {
 
     public synchronized List<Itinerary> getItinerariosPorConductor(String conductor) {
         List<Itinerary> resultado = new ArrayList<>();
-        if (conductor == null || conductor.isBlank()) return resultado;
+        if (conductor == null || conductor.isBlank()) {
+            return resultado;
+        }
         for (Itinerary it : itinerariosList) {
             if (it.getConductor().equalsIgnoreCase(conductor.trim())) {
                 resultado.add(it);
@@ -92,7 +119,9 @@ public class ItineraryService {
         Itinerary proximo = null;
         for (Itinerary it : lista) {
             LocalDateTime salida = LocalDateTime.of(it.getFecha(), it.getHoraSalida());
-            if (salida.isBefore(ahora)) continue;
+            if (salida.isBefore(ahora)) {
+                continue;
+            }
             if (proximo == null || salida.isBefore(LocalDateTime.of(proximo.getFecha(), proximo.getHoraSalida()))) {
                 proximo = it;
             }
@@ -129,15 +158,25 @@ public class ItineraryService {
     }
 
     public synchronized boolean borrarItinerario(String id) {
-        return itinerariosList.removeIf(it -> it.getId().equalsIgnoreCase(id));
+        boolean removed = itinerariosList.removeIf(it -> it.getId().equalsIgnoreCase(id));
+        if (removed) {
+            notificarCambio();
+        }
+        return removed;
+    }
+
+    private void notificarCambio() {
+        if (database != null) {
+            database.guardar(itinerariosList);
+        }
     }
 
     private void cargarItinerariosDemo() {
         try {
             LocalDate hoy = LocalDate.now().plusDays(1);
-            crearItinerario("Plaza Venezuela - UCV", hoy, LocalTime.of(7, 30), LocalTime.of(8, 15), "UCV-234", "Jose Martinez", 32);
-            crearItinerario("La Rinconada - UCV", hoy, LocalTime.of(6, 30), LocalTime.of(7, 30), "UCV-156", "Carlos Gomez", 30);
-            crearItinerario("Guarenas - UCV", hoy, LocalTime.of(5, 45), LocalTime.of(7, 0), "UCV-789", "Pedro Perez", 40);
+            crearItinerario("Plaza Venezuela - UCV", hoy, LocalTime.of(7, 30), LocalTime.of(8, 15), "UCV-234", "Jose Martinez", 32, false);
+            crearItinerario("La Rinconada - UCV", hoy, LocalTime.of(6, 30), LocalTime.of(7, 30), "UCV-156", "Carlos Gomez", 30, true);
+            crearItinerario("Guarenas - UCV", hoy, LocalTime.of(5, 45), LocalTime.of(7, 0), "UCV-789", "Pedro Perez", 40, true);
         } catch (Exception ignored) {}
     }
 }

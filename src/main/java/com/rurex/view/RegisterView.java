@@ -1,7 +1,6 @@
 package com.rurex.view;
 
 import com.rurex.controller.AuthController;
-import com.rurex.model.UserRole;
 
 import javax.swing.*;
 import java.awt.*;
@@ -66,39 +65,6 @@ public class RegisterView extends JFrame {
         card.add(Estilos.etiquetaCampo("Correo Electrónico:", txtEmail));
         card.add(Box.createVerticalStrut(10));
 
-        JList<UserRole> listaRol = new JList<>(UserRole.values());
-        listaRol.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        listaRol.setSelectedIndex(0);
-        listaRol.setFixedCellHeight(28);
-        listaRol.setBorder(BorderFactory.createLineBorder(Estilos.BORDE_CAMPO, 1));
-        listaRol.setPreferredSize(new Dimension(260, 4 * 28 + 2));
-        listaRol.setCellRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, false, false);
-                l.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-                l.setFont(Estilos.fuente(isSelected ? Font.BOLD : Font.PLAIN, 12));
-                if (isSelected) {
-                    l.setText("●  " + value);
-                    l.setBackground(Estilos.VERDE_CLARO);
-                    l.setForeground(Estilos.VERDE);
-                } else {
-                    l.setBackground(Color.WHITE);
-                    l.setForeground(Estilos.NAVY);
-                }
-                return l;
-            }
-        });
-        listaRol.addListSelectionListener(e -> {
-            if (listaRol.isSelectionEmpty()) listaRol.setSelectedIndex(0);
-        });
-
-        JPanel contenedorLista = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        contenedorLista.setBackground(Color.WHITE);
-        contenedorLista.add(listaRol);
-        card.add(Estilos.etiquetaCampo("Tipo de Usuario:", contenedorLista));
-        card.add(Box.createVerticalStrut(10));
-
         card.add(Estilos.etiquetaCampo("Carnet Estudiantil (si aplica):", txtCarnet));
         card.add(Box.createVerticalStrut(10));
 
@@ -121,7 +87,6 @@ public class RegisterView extends JFrame {
                 txtNombre.getText(),
                 txtEmail.getText(),
                 txtCedula.getText(),
-                listaRol.getSelectedValue(),
                 txtCarnet.getText(),
                 new String(txtPass.getPassword()),
                 new String(txtPassConfirm.getPassword())

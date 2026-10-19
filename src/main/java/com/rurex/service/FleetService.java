@@ -1,5 +1,6 @@
 package com.rurex.service;
 
+import com.rurex.database.FleetDatabase;
 import com.rurex.model.OperationalStatus;
 import com.rurex.model.TransportUnit;
 
@@ -8,9 +9,42 @@ import java.util.*;
 public class FleetService {
 
     private final Map<String, TransportUnit> unidadesMap = new LinkedHashMap<>();
+    private FleetDatabase database;
 
     public FleetService() {
         cargarUnidadesDemo();
+    }
+
+    public FleetService(FleetDatabase database) {
+        this.database = database;
+        if (database != null && database.existe()) {
+            cargarUnidades(database.cargar());
+        } else {
+            cargarUnidadesDemo();
+            if (database != null) {
+                database.guardar(getUnidades());
+            }
+        }
+    }
+
+    public void setDatabase(FleetDatabase database) {
+        this.database = database;
+        if (database != null) {
+            if (database.existe()) {
+                cargarUnidades(database.cargar());
+            } else {
+                database.guardar(getUnidades());
+            }
+        }
+    }
+
+    public synchronized void cargarUnidades(List<TransportUnit> unidades) {
+        unidadesMap.clear();
+        for (TransportUnit u : unidades) {
+            if (u != null) {
+                unidadesMap.put(u.getPlaca().toUpperCase(), u);
+            }
+        }
     }
 
     public synchronized TransportUnit registrarUnidad(String placa, String modelo, int capacidad, OperationalStatus estado) {
@@ -31,6 +65,7 @@ public class FleetService {
 
         TransportUnit unidad = new TransportUnit(placaNorm, modelo, capacidad, estado);
         unidadesMap.put(placaNorm, unidad);
+        notificarCambio();
         return unidad;
     }
 
@@ -39,7 +74,9 @@ public class FleetService {
     }
 
     public synchronized List<TransportUnit> filtrarPorEstado(OperationalStatus estado) {
-        if (estado == null) return getUnidades();
+        if (estado == null) {
+            return getUnidades();
+        }
         List<TransportUnit> lista = new ArrayList<>();
         for (TransportUnit u : unidadesMap.values()) {
             if (u.getEstado() == estado) {
@@ -69,6 +106,7 @@ public class FleetService {
         if (nuevoEstado != null) {
             u.setEstado(nuevoEstado);
         }
+        notificarCambio();
         return u;
     }
 
@@ -77,7 +115,9 @@ public class FleetService {
     }
 
     public synchronized Optional<TransportUnit> findByPlaca(String placa) {
-        if (placa == null) return Optional.empty();
+        if (placa == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(unidadesMap.get(placa.trim().toUpperCase()));
     }
 
@@ -96,6 +136,12 @@ public class FleetService {
 
     public synchronized int getCantidadMantenimiento() {
         return filtrarPorEstado(OperationalStatus.EN_MANTENIMIENTO).size();
+    }
+
+    private void notificarCambio() {
+        if (database != null) {
+            database.guardar(getUnidades());
+        }
     }
 
     private void cargarUnidadesDemo() {
