@@ -2,6 +2,7 @@ package com.rurex.view;
 
 import com.rurex.controller.AuthController;
 import com.rurex.model.Itinerary;
+import com.rurex.model.Ticket;
 import com.rurex.model.Trip;
 import com.rurex.model.User;
 import com.rurex.service.ItineraryService;
@@ -23,6 +24,7 @@ public class ConductorDashboardView extends JFrame {
     private final User user;
     private final ItineraryService itineraryService;
     private final TripService tripService;
+    private final AuthController authController;
     private final CardLayout cardLayout = new CardLayout();
     private final JPanel panelContenido = new JPanel(cardLayout);
     private final JPanel panelTrip = new JPanel(new BorderLayout());
@@ -41,6 +43,7 @@ public class ConductorDashboardView extends JFrame {
         this.user = user;
         this.itineraryService = itineraryService;
         this.tripService = tripService;
+        this.authController = authController;
 
         setTitle("Transporte UCV - Panel del Conductor");
         setSize(1100, 700);
@@ -54,8 +57,9 @@ public class ConductorDashboardView extends JFrame {
         panelContenido.add(crearPanelInicio(), "Inicio");
         panelContenido.add(crearPanelItinerarios(), "Mis Itinerarios");
         panelContenido.add(crearPanelEstado(), "Estado del Recorrido");
+        panelContenido.add(crearPanelValidar(), "Validar Ticket");
 
-        String[] items = {"Inicio", "Mis Itinerarios", "Estado del Recorrido"};
+        String[] items = {"Inicio", "Mis Itinerarios", "Estado del Recorrido", "Validar Ticket"};
         irA = Estilos.crearShellNav(this, "Panel del Conductor", items, this::mostrarSeccion, panelContenido);
 
         cargarDatos();
@@ -152,6 +156,36 @@ public class ConductorDashboardView extends JFrame {
         mostrarMensajeSinRecorrido();
         panel.add(Estilos.cardConTitulo("Estado del Recorrido", panelTrip), BorderLayout.CENTER);
         return panel;
+    }
+
+    private JPanel crearPanelValidar() {
+        JTextField txtCodigo = Estilos.campo("Pegue o escanee el código del ticket");
+        txtCodigo.setPreferredSize(new Dimension(520, 34));
+        JButton btnValidar = Estilos.botonPrimario("Validar");
+        btnValidar.addActionListener(e -> validarTicket(txtCodigo.getText()));
+        JPanel fila = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        fila.setBackground(Color.WHITE);
+        fila.add(txtCodigo);
+        fila.add(btnValidar);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Estilos.FONDO);
+        panel.add(Estilos.cardConTitulo("Validar Ticket", fila), BorderLayout.NORTH);
+        return panel;
+    }
+
+    private void validarTicket(String codigo) {
+        List<Itinerary> mios = itineraryService.getItinerariosPorConductor(user.getNombreCompleto());
+        try {
+            Ticket t = authController.validarTicket(codigo, mios.stream().map(Itinerary::getId).toList());
+            String pasajero = authController.getUsuarios().stream().filter(u -> u.getCedula().equals(t.getCedula()))
+                    .map(User::getNombreCompleto).findFirst().orElse("-");
+            String ruta = mios.stream().filter(i -> i.getId().equals(t.getItinerarioId()))
+                    .map(i -> i.getRutaNombre() + " · " + i.getFecha() + " " + i.getHoraSalida()).findFirst().orElse("-");
+            JOptionPane.showMessageDialog(this, "Ticket validado\nPasajero: " + pasajero + " (" + t.getCedula() + ")\nRuta: " + ruta,
+                    "Ticket validado", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IllegalArgumentException | IllegalStateException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void mostrarMensajeSinRecorrido() {

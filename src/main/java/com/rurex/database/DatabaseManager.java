@@ -12,6 +12,7 @@ public class DatabaseManager {
     private final RutaDatabase rutaDatabase;
     private final TripDatabase tripDatabase;
     private final TarifaDatabase tarifaDatabase;
+    private final TicketDatabase ticketDatabase;
 
     public DatabaseManager() {
         this("data");
@@ -25,6 +26,7 @@ public class DatabaseManager {
         this.rutaDatabase = new RutaDatabase(dataDirectory + "/rutas.json");
         this.tripDatabase = new TripDatabase(dataDirectory + "/viajes.json");
         this.tarifaDatabase = new TarifaDatabase(dataDirectory + "/tarifas.json");
+        this.ticketDatabase = new TicketDatabase(dataDirectory + "/tickets.json", dataDirectory + "/clave-tickets.key");
     }
 
     public static synchronized DatabaseManager getInstance() {
@@ -46,6 +48,7 @@ public class DatabaseManager {
         if (authService != null) {
             authService.setDatabase(userDatabase);
             authService.getTarifaService().setDatabase(tarifaDatabase);
+            authService.getTicketService().setDatabase(ticketDatabase);
         }
         if (fleetService != null) {
             fleetService.setDatabase(fleetDatabase);
@@ -87,6 +90,10 @@ public class DatabaseManager {
 
     public TarifaDatabase getTarifaDatabase() {
         return tarifaDatabase;
+    }
+
+    public TicketDatabase getTicketDatabase() {
+        return ticketDatabase;
     }
 
     public static void main(String[] args) {

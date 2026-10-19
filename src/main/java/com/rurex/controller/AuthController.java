@@ -1,5 +1,6 @@
 package com.rurex.controller;
 
+import com.rurex.model.Ticket;
 import com.rurex.model.User;
 import com.rurex.model.UserRole;
 import com.rurex.service.AuthService;
@@ -130,7 +131,10 @@ public class AuthController {
         return AuthService.MONTOS_RECARGA;
     }
 
-    public String pagarTicketExtraurbano(User user, String itinerarioId) { return authService.pagarTicketExtraurbano(user.getEmail(), itinerarioId); }
+    public Ticket pagarTicketExtraurbano(User user, String itinerarioId) { return authService.pagarTicketExtraurbano(user.getEmail(), itinerarioId); }
+    public Optional<Ticket> ticketDe(User user, String itinerarioId) { return authService.getTicketService().ticketDe(user, itinerarioId); }
+    public String codigoTicket(Ticket ticket) { return authService.getTicketService().codigo(ticket); }
+    public Ticket validarTicket(String codigo, List<String> itinerarios) { return authService.getTicketService().validar(codigo, itinerarios); }
     public BigDecimal getPrecioTicketExtraurbano(User user) { return authService.getTarifaService().precio(user.getRol()); }
 
     private TarifasView tarifasView;

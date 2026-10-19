@@ -71,6 +71,26 @@ public class DatabaseManagerTest {
     }
 
     @Test
+    void testTicketPersistence() {
+        AuthService authService = new AuthService();
+        dbManager.conectar(authService, null, null, null, null);
+        assertTrue(Files.exists(tempDir.resolve("clave-tickets.key")));
+        Ticket t = authService.pagarTicketExtraurbano("estudiante@ucv.ve", "IT-1");
+        String codigo = authService.getTicketService().codigo(t);
+
+        AuthService reiniciado = new AuthService();
+        dbManager.conectar(reiniciado, null, null, null, null);
+        assertThrows(IllegalStateException.class, () -> reiniciado.pagarTicketExtraurbano("estudiante@ucv.ve", "IT-1"));
+        Ticket validado = reiniciado.getTicketService().validar(codigo, List.of("IT-1"));
+        assertEquals(t.getId(), validado.getId());
+        assertEquals(0, validado.getMonto().compareTo(t.getMonto()));
+
+        TicketService otra = new TicketService();
+        otra.setDatabase(dbManager.getTicketDatabase());
+        assertThrows(IllegalStateException.class, () -> otra.validar(codigo, List.of("IT-1")));
+    }
+
+    @Test
     void testRealtimeFleetPersistence() {
         FleetService fleetService = new FleetService();
         dbManager.conectar(null, fleetService, null, null, null);

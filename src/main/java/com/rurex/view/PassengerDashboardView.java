@@ -2,6 +2,7 @@ package com.rurex.view;
 
 import com.rurex.controller.AuthController;
 import com.rurex.model.Itinerary;
+import com.rurex.model.Ticket;
 import com.rurex.model.User;
 import com.rurex.service.ItineraryService;
 import com.rurex.service.TripService;
@@ -187,12 +188,20 @@ public class PassengerDashboardView extends JFrame {
             Itinerary it = itinerarios.get(indice);
             panelTrip.add(new TripPassengerPanel(itineraryService.crearTrip(it), user.getEmail(), user.getNombreCompleto(), tripService), BorderLayout.CENTER);
             if (it.isExtraurbana()) {
-                JButton btnPagar = Estilos.botonPrimario("Pagar ticket (Bs. "
-                + authController.getPrecioTicketExtraurbano(user).toPlainString() + ")");
-                btnPagar.addActionListener(e -> pagarTicketExtraurbano(it));
+                Optional<Ticket> ticket = authController.ticketDe(user, it.getId());
                 JPanel sur = new JPanel(new FlowLayout(FlowLayout.LEFT));
                 sur.setBackground(Color.WHITE);
-                sur.add(btnPagar);
+                if (ticket.isPresent()) {
+                    JButton btnVer = Estilos.botonOutline("Ver mi ticket");
+                    btnVer.addActionListener(e -> mostrarTicket(ticket.get(), it));
+                    sur.add(btnVer);
+                    sur.add(Estilos.etiqueta(ticket.get().isUsado() ? "Ticket utilizado" : "Ticket sin usar", Font.PLAIN, 13, Estilos.GRIS));
+                } else {
+                    JButton btnPagar = Estilos.botonPrimario("Pagar ticket (Bs. "
+                    + authController.getPrecioTicketExtraurbano(user).toPlainString() + ")");
+                    btnPagar.addActionListener(e -> pagarTicketExtraurbano(it));
+                    sur.add(btnPagar);
+                }
                 panelTrip.add(sur, BorderLayout.SOUTH);
             }
         } else {
@@ -321,13 +330,28 @@ public class PassengerDashboardView extends JFrame {
     if (confirmar != JOptionPane.YES_OPTION) return;
 
     try {
-        String referencia = authController.pagarTicketExtraurbano(user, it.getId());
+        Ticket ticket = authController.pagarTicketExtraurbano(user, it.getId());
         actualizarSaldo();
-        JOptionPane.showMessageDialog(this, "Ticket pagado. Referencia: " + referencia,
-                "Listo", JOptionPane.INFORMATION_MESSAGE);
+        mostrarRecorrido();
+        mostrarTicket(ticket, it);
     } catch (IllegalStateException | IllegalArgumentException ex) {
         JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
+
+    private void mostrarTicket(Ticket t, Itinerary it) {
+        String codigo = authController.codigoTicket(t);
+        JTextField txtCodigo = new JTextField(codigo, 30);
+        txtCodigo.setEditable(false);
+        JPanel datos = new JPanel(new GridLayout(0, 1, 0, 4));
+        datos.add(Estilos.etiqueta("Ticket " + t.getId() + (t.isUsado() ? " (utilizado)" : ""), Font.BOLD, 14, Estilos.NAVY));
+        datos.add(Estilos.etiqueta(it.getRutaNombre() + " · " + it.getFecha() + " " + it.getHoraSalida(), Font.PLAIN, 13, Estilos.NAVY));
+        datos.add(Estilos.etiqueta("Monto: Bs. " + t.getMonto().toPlainString(), Font.PLAIN, 13, Estilos.NAVY));
+        JPanel cuerpo = new JPanel(new BorderLayout(0, 8));
+        cuerpo.add(Estilos.qr(codigo, 240), BorderLayout.NORTH);
+        cuerpo.add(datos, BorderLayout.CENTER);
+        cuerpo.add(txtCodigo, BorderLayout.SOUTH);
+        JOptionPane.showMessageDialog(this, cuerpo, "Ticket Digital", JOptionPane.PLAIN_MESSAGE);
+    }
 }
 
