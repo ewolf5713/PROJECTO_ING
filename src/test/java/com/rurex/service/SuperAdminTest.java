@@ -42,9 +42,16 @@ public class SuperAdminTest {
     }
 
     @Test
-    void testSuperAdminAlternativeAcceptedPasswords() {
-        assertTrue(authService.autenticar("superadmin", "superadmin").isPresent());
-        assertTrue(authService.autenticar("superadmin", "Admin123").isPresent());
+    void testSuperAdminRejectsHardcodedAlternativePasswords() {
+        assertTrue(authService.autenticar("superadmin", "Superadmin123").isPresent());
+        assertFalse(authService.autenticar("superadmin", "superadmin").isPresent());
+        assertFalse(authService.autenticar("superadmin", "Admin123").isPresent());
         assertFalse(authService.autenticar("superadmin", "claveIncorrecta").isPresent());
+    }
+
+    @Test
+    void testUsernameAliasIsNotAStoredUser() {
+        assertEquals(1, authService.getUsuarios().stream().filter(authService::esSuperAdmin).count());
+        assertTrue(authService.getUsuarios().stream().noneMatch(u -> u.getEmail().equals("superadmin")));
     }
 }

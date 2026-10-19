@@ -90,13 +90,8 @@ public class AuthService {
             usuario = usuariosPorEmail.get(SUPERADMIN_EMAIL);
         }
 
-        if (usuario != null) {
-            if (esSuperAdmin(usuario) && (password.equals("Superadmin123") || password.equals("superadmin") || password.equals("Admin123"))) {
-                return Optional.of(usuario);
-            }
-            if (verificarPassword(password, usuario.getPasswordHash())) {
-                return Optional.of(usuario);
-            }
+        if (usuario != null && verificarPassword(password, usuario.getPasswordHash())) {
+            return Optional.of(usuario);
         }
         return Optional.empty();
     }
@@ -110,7 +105,7 @@ public class AuthService {
     }
 
     public synchronized List<User> getUsuarios() {
-        return new ArrayList<>(new LinkedHashSet<>(usuariosPorEmail.values()));
+        return new ArrayList<>(usuariosPorEmail.values());
     }
 
     public synchronized void cargarUsuarios(List<User> lista) {
@@ -134,7 +129,6 @@ public class AuthService {
             User superAdmin = new User("Super Administrador", SUPERADMIN_EMAIL, SUPERADMIN_CEDULA, UserRole.ADMINISTRADOR, "", hashPassword("Superadmin123"));
             usuariosPorEmail.put(SUPERADMIN_EMAIL, superAdmin);
             usuariosPorCedula.put(SUPERADMIN_CEDULA, superAdmin);
-            usuariosPorEmail.put(SUPERADMIN_USERNAME, superAdmin);
         }
     }
 

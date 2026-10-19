@@ -82,7 +82,7 @@ mvn compile && java -cp target/classes com.rurex.TripDemo
 
 | Rol | Usuario / Correo | Cédula | Password |
 |---|---|---|---|
-| Super Administrador | `superadmin` / `superadmin@ucv.ve` | `V-00000000` | `Superadmin123` / `superadmin` / `Admin123` |
+| Super Administrador | `superadmin` / `superadmin@ucv.ve` | `V-00000000` | `Superadmin123` |
 | Administrador | `admin@ucv.ve` | `V-00000001` | `Admin123` |
 | Estudiante | `estudiante@ucv.ve` | `V-25000000` | `Estudiante123` |
 | Empleado | `empleado@ucv.ve` | `V-26000000` | `Empleado123` |
