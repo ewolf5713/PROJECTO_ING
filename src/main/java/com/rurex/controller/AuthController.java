@@ -133,7 +133,12 @@ public class AuthController {
     public String pagarTicketExtraurbano(User user, String itinerarioId) { return authService.pagarTicketExtraurbano(user.getEmail(), itinerarioId); }
     public BigDecimal getPrecioTicketExtraurbano(User user) { return authService.getTarifaService().precio(user.getRol()); }
 
-    public void mostrarTarifas() { new TarifasView(this).setVisible(true); }
+    private TarifasView tarifasView;
+    public void mostrarTarifas() {
+        if (tarifasView != null) tarifasView.dispose();
+        tarifasView = new TarifasView(this);
+        tarifasView.setVisible(true);
+    }
     public void configurarTarifas(BigDecimal base, int pctEstudiante, int pctEmpleado) { authService.getTarifaService().configurar(base, pctEstudiante, pctEmpleado); }
     public BigDecimal getTarifaBase() { return authService.getTarifaService().getTarifaBase(); }
     public int getPorcentajeEstudiante() { return authService.getTarifaService().getPorcentajeEstudiante(); }
