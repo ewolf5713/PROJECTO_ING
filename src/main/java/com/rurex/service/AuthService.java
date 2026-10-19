@@ -105,7 +105,7 @@ public class AuthService {
         if (monto == null || MONTOS_RECARGA.stream().noneMatch(m -> m.compareTo(monto) == 0)) { throw new IllegalArgumentException("[SELECCIONE MONTO A RECARGAR]"); }
 
         usuario.acreditar(monto);
-        return "PM- " + (10000 + new SecureRandom().nextInt(900000));
+        return "PM-" + (10000 + new SecureRandom().nextInt(900000));
     }
 
     private void validarCampos(String nombre, String email, String cedula, String password) {
@@ -159,7 +159,7 @@ public class AuthService {
             usuariosPorEmail.put(admin.getEmail(), admin);
             usuariosPorCedula.put(admin.getCedula(), admin);
 
-            User estudiante = new User("Estudiante Demo", "estudiante@ucv.ve", "V-25000000", UserRole.ESTUDIANTE, "20-12345", hashPassword("Estudiante123"));
+            User estudiante = new User("Estudiante Demo", "estudiante@ucv.ve", "V-25000000", UserRole.ESTUDIANTE, "20-12345", hashPassword("Estudiante123"), new BigDecimal("25.00"));
             usuariosPorEmail.put(estudiante.getEmail(), estudiante);
             usuariosPorCedula.put(estudiante.getCedula(), estudiante);
 

@@ -2,9 +2,6 @@ package com.rurex.model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 public class User {
     private String nombreCompleto;
     private String email;

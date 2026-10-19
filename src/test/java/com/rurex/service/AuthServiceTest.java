@@ -102,7 +102,7 @@ public class AuthServiceTest {
         AuthService auth = new AuthService();
         String ref = auth.recargarMonedero("estudiante@ucv.ve", "Banesco", "04141234567", "V12345678", new BigDecimal("10.00"));
         assumeTrue(ref.startsWith("PM-"));
-        assertEquals(0, auth.consultarSaldo("estudainte@ucv.ve").compareTo(new BigDecimal("35.00")));
+        assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("35.00")));
     }
 
     @Test 
@@ -123,7 +123,7 @@ public class AuthServiceTest {
     void administradorNoPuedeRecargar() {
         AuthService auth = new AuthService();
         assertThrows(IllegalArgumentException.class, () -> auth.recargarMonedero(
-            "estudiante@ucv.ve", "Banesco", "04141234567", "V12345678", new BigDecimal("7.00")));
+            "admin@ucv.ve", "Banesco", "04141234567", "V12345678", new BigDecimal("10.00")));
     }
 
     @Test
