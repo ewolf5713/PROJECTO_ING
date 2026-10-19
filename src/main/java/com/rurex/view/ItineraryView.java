@@ -40,7 +40,9 @@ public class ItineraryView extends JFrame {
         JSpinner spSalida = spinner("HH:mm", hora(7, 30));
         JSpinner spLlegada = spinner("HH:mm", hora(8, 15));
         JTextField txtCupos = Estilos.campo("");
-        txtCupos.setText("32");
+        Runnable cuposDeUnidad = () -> txtCupos.setText(comboUnidad.getSelectedItem() == null ? "" : String.valueOf(controller.getCapacidad((String) comboUnidad.getSelectedItem())));
+        comboUnidad.addActionListener(e -> cuposDeUnidad.run());
+        cuposDeUnidad.run();
 
         JButton btnGuardar = Estilos.botonPrimario("Guardar Itinerario");
         JPanel panelBoton = new JPanel(new BorderLayout());

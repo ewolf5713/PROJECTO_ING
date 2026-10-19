@@ -39,5 +39,21 @@
     "rol": "CONDUCTOR",
     "carnet": "",
     "passwordHash": "diz6TlyZ0WwbF+ylRmwsXw==:FPEsaBVxrK0qsOfryGzkQ2qwMGlCagl2SbQfu8b38o4="
+  },
+  {
+    "nombreCompleto": "Jose Martinez",
+    "email": "jose.martinez@ucv.ve",
+    "cedula": "V-27000001",
+    "rol": "CONDUCTOR",
+    "carnet": "",
+    "passwordHash": "CFAXXy2QNJEjGKKPH62x4w==:TDW2negLGH25bWgHZ3bwTe4HcryQjFvD6jCTRPbvnN0="
+  },
+  {
+    "nombreCompleto": "Pedro Perez",
+    "email": "pedro.perez@ucv.ve",
+    "cedula": "V-27000002",
+    "rol": "CONDUCTOR",
+    "carnet": "",
+    "passwordHash": "IKLjzIoBHF++FJkFnRwDIA==:T8R9XgqW+cdi8RLeIS93L+vyq9QDC31XR3itdE2ujQk="
   }
 ]

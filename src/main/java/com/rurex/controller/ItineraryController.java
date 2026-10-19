@@ -49,6 +49,10 @@ public class ItineraryController {
         return fleetService.filtrarPorEstado(OperationalStatus.ACTIVA).stream().map(TransportUnit::getPlaca).sorted().toList();
     }
 
+    public int getCapacidad(String placa) {
+        return fleetService.getUnidades().stream().filter(u -> u.getPlaca().equals(placa)).mapToInt(TransportUnit::getCapacidad).findFirst().orElse(0);
+    }
+
     public List<String> getConductores() {
         return authService.getUsuarios().stream().filter(u -> u.getRol() == UserRole.CONDUCTOR).map(User::getNombreCompleto).sorted().toList();
     }

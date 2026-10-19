@@ -258,6 +258,12 @@ public class AuthService {
             usuariosPorEmail.put(conductor.getEmail(), conductor);
             usuariosPorCedula.put(conductor.getCedula(), conductor);
 
+            for (String[] c : new String[][]{{"Jose Martinez", "jose.martinez@ucv.ve", "V-27000001"}, {"Pedro Perez", "pedro.perez@ucv.ve", "V-27000002"}}) {
+                User u = new User(c[0], c[1], c[2], UserRole.CONDUCTOR, "", hashPassword("Conductor123"));
+                usuariosPorEmail.put(u.getEmail(), u);
+                usuariosPorCedula.put(u.getCedula(), u);
+            }
+
             asegurarSuperAdmin();
         } catch (Exception ignored) {
         }
