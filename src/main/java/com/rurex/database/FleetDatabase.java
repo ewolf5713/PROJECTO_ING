@@ -30,15 +30,11 @@ public class FleetDatabase {
             map.put("estado", u.getEstado().name());
             list.add(map);
         }
-        JsonFileStorage.write(filePath, Json.serialize(list));
+        JsonFileStorage.write(filePath, list);
     }
 
     public synchronized List<TransportUnit> cargar() {
-        String content = JsonFileStorage.read(filePath);
-        if (content == null || content.isBlank()) {
-            return new ArrayList<>();
-        }
-        List<Map<String, Object>> list = Json.parseList(content);
+        List<Map<String, Object>> list = JsonFileStorage.readList(filePath);
         List<TransportUnit> result = new ArrayList<>();
         for (Map<String, Object> map : list) {
             String placa = (String) map.get("placa");

@@ -38,15 +38,11 @@ public class ItineraryDatabase {
             map.put("extraurbana", it.isExtraurbana());
             list.add(map);
         }
-        JsonFileStorage.write(filePath, Json.serialize(list));
+        JsonFileStorage.write(filePath, list);
     }
 
     public synchronized List<Itinerary> cargar(FleetService fleetService) {
-        String content = JsonFileStorage.read(filePath);
-        if (content == null || content.isBlank()) {
-            return new ArrayList<>();
-        }
-        List<Map<String, Object>> list = Json.parseList(content);
+        List<Map<String, Object>> list = JsonFileStorage.readList(filePath);
         List<Itinerary> result = new ArrayList<>();
         for (Map<String, Object> map : list) {
             String id = (String) map.get("id");

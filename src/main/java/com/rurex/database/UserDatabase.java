@@ -36,15 +36,11 @@ public class UserDatabase {
             map.put("saldo", u.getSaldo().toPlainString());
             list.add(map);
         }
-        JsonFileStorage.write(filePath, Json.serialize(list));
+        JsonFileStorage.write(filePath, list);
     }
 
     public synchronized List<User> cargar() {
-        String content = JsonFileStorage.read(filePath);
-        if (content == null || content.isBlank()) {
-            return new ArrayList<>();
-        }
-        List<Map<String, Object>> list = Json.parseList(content);
+        List<Map<String, Object>> list = JsonFileStorage.readList(filePath);
         List<User> users = new ArrayList<>();
         for (Map<String, Object> map : list) {
             String nombre = (String) map.get("nombreCompleto");

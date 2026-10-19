@@ -32,15 +32,11 @@ public class TripDatabase {
             map.put("updatedAt", state.updatedAt().toString());
             list.add(map);
         }
-        JsonFileStorage.write(filePath, Json.serialize(list));
+        JsonFileStorage.write(filePath, list);
     }
 
     public synchronized Map<String, TripState> cargar() {
-        String content = JsonFileStorage.read(filePath);
-        if (content == null || content.isBlank()) {
-            return new HashMap<>();
-        }
-        List<Map<String, Object>> list = Json.parseList(content);
+        List<Map<String, Object>> list = JsonFileStorage.readList(filePath);
         Map<String, TripState> map = new HashMap<>();
         for (Map<String, Object> item : list) {
             String tripId = (String) item.get("tripId");
