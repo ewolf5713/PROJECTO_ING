@@ -3,10 +3,13 @@ package com.rurex;
 import com.rurex.controller.AuthController;
 import com.rurex.controller.FleetController;
 import com.rurex.controller.ItineraryController;
+import com.rurex.controller.RutaController;
 import com.rurex.service.AuthService;
 import com.rurex.service.FleetService;
 import com.rurex.service.ItineraryService;
+import com.rurex.service.RutaService;
 import com.rurex.service.TripService;
+import com.rurex.view.Estilos;
 import com.rurex.view.LoginView;
 
 import javax.swing.*;
@@ -20,6 +23,10 @@ public class Main {
 
             FleetController fleetController = new FleetController(fleetService);
             ItineraryController itineraryController = new ItineraryController(itineraryService);
+
+            RutaService rutaService = new RutaService();
+            RutaController rutaController = new RutaController(rutaService);
+            Estilos.setRutaController(rutaController);
             TripService tripService = new TripService((passengerId, tripId) -> true);
             AuthController authController = new AuthController(authService, fleetController, itineraryController, fleetService, itineraryService, tripService);
 

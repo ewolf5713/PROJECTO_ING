@@ -3,6 +3,7 @@ package com.rurex.view;
 import com.rurex.controller.AuthController;
 import com.rurex.controller.FleetController;
 import com.rurex.controller.ItineraryController;
+import com.rurex.controller.RutaController;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
@@ -37,6 +38,7 @@ public class Estilos {
     private static AuthController authController;
     private static FleetController fleetController;
     private static ItineraryController itineraryController;
+    private static RutaController rutaController;
 
     public static void iniciarSesion(String nombre, JFrame inicio, AuthController auth, FleetController fleet, ItineraryController itinerary) {
         nombreUsuario = nombre;
@@ -52,6 +54,10 @@ public class Estilos {
         authController = auth;
         fleetController = null;
         itineraryController = null;
+    }
+
+    public static void setRutaController(RutaController controller) {
+        rutaController = controller;
     }
 
     public static Font fuente(int estilo, int tamano) {
@@ -566,6 +572,7 @@ public class Estilos {
         JButton btnInicio = crearBotonNav("Inicio", activo.equals("Inicio"));
         JButton btnUnidades = crearBotonNav("Unidades", activo.equals("Unidades"));
         JButton btnItinerarios = crearBotonNav("Itinerarios", activo.equals("Itinerarios"));
+        JButton btnRutas = crearBotonNav("Rutas", activo.equals("Rutas"));
 
         btnInicio.addActionListener(e -> {
             if (activo.equals("Inicio") || ventanaInicio == null) return;
@@ -582,12 +589,23 @@ public class Estilos {
             itineraryController.mostrarVista();
             ventana.setVisible(false);
         });
+        btnRutas.addActionListener(e -> {
+            if (activo.equals("Rutas")) return;
+            if (rutaController == null) {
+                JOptionPane.showMessageDialog(ventana, "El módulo de Rutas no está configurado.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            rutaController.mostrarVista();
+            ventana.setVisible(false);
+        });
 
         nav.add(btnInicio);
         nav.add(Box.createVerticalStrut(4));
         nav.add(btnUnidades);
         nav.add(Box.createVerticalStrut(4));
         nav.add(btnItinerarios);
+        nav.add(Box.createVerticalStrut(4));
+        nav.add(btnRutas);
         sidebar.add(nav, BorderLayout.CENTER);
 
         sidebar.add(crearPieSidebar(ventana), BorderLayout.SOUTH);
