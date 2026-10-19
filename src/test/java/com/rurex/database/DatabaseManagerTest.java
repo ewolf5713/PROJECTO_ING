@@ -51,7 +51,7 @@ public class DatabaseManagerTest {
         assertTrue(authService2.autenticar("pedro@ucv.ve", "ClaveSegura123").isPresent());
         assertTrue(authService2.autenticar("superadmin", "Superadmin123").isPresent());
 
-        authService.recargarMonedero("estudiante@ucv.ve", "Banco", "04121234567", "V-25000000", new java.math.BigDecimal("10.00"));
+        authService.recargarMonedero("estudiante@ucv.ve", "Banco", "04121234567", "V-25000000", "123456", new java.math.BigDecimal("10.00"));
         assertEquals(new java.math.BigDecimal("35.00"), new AuthService(dbManager.getUserDatabase()).consultarSaldo("estudiante@ucv.ve"));
     }
 

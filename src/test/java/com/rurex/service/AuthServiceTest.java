@@ -105,7 +105,7 @@ public class AuthServiceTest {
     @Test 
     void recargaValidaAumentaElSaldo() {
         AuthService auth = new AuthService();
-        String ref = auth.recargarMonedero("estudiante@ucv.ve", "Banesco", "04141234567", "V12345678", new BigDecimal("10.00"));
+        String ref = auth.recargarMonedero("estudiante@ucv.ve", "Banesco", "04141234567", "V12345678", "123456", new BigDecimal("10.00"));
         assumeTrue(ref.startsWith("PM-"));
         assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("35.00")));
     }
@@ -114,21 +114,32 @@ public class AuthServiceTest {
     void telefonoInvalidoRechazaYnoCambiaElSaldo() {
         AuthService auth = new AuthService();
         assertThrows(IllegalArgumentException.class, () -> auth.recargarMonedero(
-            "estudiante@ucv.ve", "Banesco", "123", "V12345678", new BigDecimal("10.00")));
+            "estudiante@ucv.ve", "Banesco", "123", "V12345678", "123456", new BigDecimal("10.00")));
     }
 
     @Test 
     void montoNoPermitidoSeRechaza() {
         AuthService auth = new AuthService();
         assertThrows(IllegalArgumentException.class, () -> auth.recargarMonedero(
-            "estudiante@ucv.ve", "Banesco", "04141234567", "V12345678", new BigDecimal("7.00")));
+            "estudiante@ucv.ve", "Banesco", "04141234567", "V12345678", "123456", new BigDecimal("7.00")));
     }
 
-    @Test 
+    @Test
+    void referenciaInvalidaRechazaYNoCambiaElSaldo() {
+        AuthService auth = new AuthService();
+        for (String ref : new String[]{null, "", "12a456", "123", "1234567890123"}) {
+            IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> auth.recargarMonedero(
+                "estudiante@ucv.ve", "Banesco", "04141234567", "V12345678", ref, new BigDecimal("10.00")));
+            assertEquals("[REFERENCIA INVALIDA]", ex.getMessage());
+        }
+        assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("25.00")));
+    }
+
+    @Test
     void administradorNoPuedeRecargar() {
         AuthService auth = new AuthService();
         assertThrows(IllegalArgumentException.class, () -> auth.recargarMonedero(
-            "admin@ucv.ve", "Banesco", "04141234567", "V12345678", new BigDecimal("10.00")));
+            "admin@ucv.ve", "Banesco", "04141234567", "V12345678", "123456", new BigDecimal("10.00")));
     }
 
     @Test

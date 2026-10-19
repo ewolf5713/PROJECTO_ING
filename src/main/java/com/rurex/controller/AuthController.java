@@ -121,8 +121,8 @@ public class AuthController {
         loginView.setVisible(true);
     }
 
-    public String recargarMonedero(User user, String banco, String telefono, String cedula, BigDecimal monto) {
-        return authService.recargarMonedero(user.getEmail(), banco, telefono, cedula, monto);
+    public String recargarMonedero(User user, String banco, String telefono, String cedula, String referencia, BigDecimal monto) {
+        return authService.recargarMonedero(user.getEmail(), banco, telefono, cedula, referencia, monto);
     }
 
     public List<BigDecimal> getMontosRecarga() {

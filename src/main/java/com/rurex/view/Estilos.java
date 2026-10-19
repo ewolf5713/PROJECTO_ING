@@ -7,6 +7,7 @@ import com.rurex.controller.RutaController;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
+import javax.swing.plaf.basic.BasicGraphicsUtils;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
@@ -20,7 +21,8 @@ import java.util.function.Consumer;
 
 public class Estilos {
 
-    public static final Color VERDE = new Color(0x1E, 0x8E, 0x5A);
+    public static final Color VERDE = new Color(0x1B, 0x87, 0x54);
+    private static final Color GRIS_DESHABILITADO = new Color(0x4B, 0x55, 0x63);
     public static final Color VERDE_CLARO = new Color(0xE6, 0xF4, 0xEC);
     public static final Color NAVY = new Color(0x1A, 0x22, 0x38);
     public static final Color GRIS = new Color(0x6B, 0x72, 0x80);
@@ -79,7 +81,15 @@ public class Estilos {
 
     private static JButton crearBoton(String texto, Color fondo, Color colorTexto, Color borde, int estilo) {
         JButton b = new JButton(texto);
-        b.setUI(new BasicButtonUI());
+        b.setUI(new BasicButtonUI() {
+            @Override
+            protected void paintText(Graphics g, JComponent c, Rectangle r, String t) {
+                if (c.isEnabled()) { super.paintText(g, c, r, t); return; }
+                g.setColor(GRIS_DESHABILITADO);
+                BasicGraphicsUtils.drawString(c, (Graphics2D) g, t, r.x, r.y + g.getFontMetrics().getAscent());
+            }
+        });
+        b.addPropertyChangeListener("enabled", e -> b.setBackground(b.isEnabled() ? fondo : GRIS_CLARO));
         b.setContentAreaFilled(true);
         b.setOpaque(true);
         b.setFocusPainted(false);

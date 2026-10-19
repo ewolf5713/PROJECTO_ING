@@ -180,13 +180,14 @@ public class AuthService {
     return "TK-" + (100000 + new SecureRandom().nextInt(900000));
 }
 
-    public synchronized String recargarMonedero(String email, String banco, String telefono, String cedula, BigDecimal monto) {
+    public synchronized String recargarMonedero(String email, String banco, String telefono, String cedula, String referencia, BigDecimal monto) {
         User usuario = usuariosPorEmail.get(email == null ? "" : email.trim().toLowerCase());
         if (usuario == null) { throw new IllegalArgumentException("[USUARIO NO ENCONTRADO]"); }
         if (!usuario.tieneMonedero()) { throw new IllegalArgumentException("[USUARIO NO TIENE MONEDERO]"); }
         if (banco == null || banco.isBlank()) { throw new IllegalArgumentException("[SELECIONES BANCO]"); }
         if (telefono == null || !PATRON_TELEFONO.matcher(telefono.trim()).matches()) { throw new IllegalArgumentException("[TELEFONO INVALIDO]"); }
         if (cedula == null || !PATRON_CEDULA_PM.matcher(cedula.trim()).matches()) { throw new IllegalArgumentException("[CEDULA INVALIDA]"); }
+        if (referencia == null || !referencia.trim().matches("\\d{4,12}")) { throw new IllegalArgumentException("[REFERENCIA INVALIDA]"); }
         if (monto == null || MONTOS_RECARGA.stream().noneMatch(m -> m.compareTo(monto) == 0)) { throw new IllegalArgumentException("[SELECCIONE MONTO A RECARGAR]"); }
 
         usuario.acreditar(monto);

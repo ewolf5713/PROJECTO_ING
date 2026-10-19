@@ -27,7 +27,7 @@ public class Main {
             DatabaseManager.getInstance().conectar(authService, fleetService, itineraryService, rutaService, tripService);
 
             FleetController fleetController = new FleetController(fleetService);
-            ItineraryController itineraryController = new ItineraryController(itineraryService);
+            ItineraryController itineraryController = new ItineraryController(itineraryService, rutaService, fleetService, authService);
             RutaController rutaController = new RutaController(rutaService);
             Estilos.setRutaController(rutaController);
 

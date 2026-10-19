@@ -195,13 +195,12 @@ public class PassengerDashboardView extends JFrame {
                 sur.add(btnPagar);
                 panelTrip.add(sur, BorderLayout.SOUTH);
             }
-            else {
+        } else {
             panelTrip.add(Estilos.etiqueta("No hay itinerarios disponibles.", Font.PLAIN, 13, Estilos.GRIS), BorderLayout.NORTH);
         }
         panelTrip.revalidate();
         panelTrip.repaint();
     }
-}
 
     private void cargarTabla(DefaultTableModel modelo) {
         modelo.setRowCount(0);
@@ -225,32 +224,32 @@ public class PassengerDashboardView extends JFrame {
     private void mostrarDialogoRecarga() {
         JComboBox<String> comboBanco = new JComboBox<>(new String[]
             {"Banesco", "Mercantil", "Provincial", "Banco de Venezuela", "BNC", "Bancamiga"});
-        JTextField txtTelefono = new JTextField();
-        JTextField txtCedula = new JTextField();
+        JTextField txtTelefono = Estilos.campo("04141234567");
+        JTextField txtCedula = Estilos.campo("V-12345678");
+        JTextField txtReferencia = Estilos.campo("123456");
         JComboBox<BigDecimal> comboMonto = new JComboBox<>(authController.getMontosRecarga().toArray(new BigDecimal[0]));
+        Estilos.estilizarCombo(comboBanco);
+        Estilos.estilizarCombo(comboMonto);
 
-        JPanel form = new JPanel(new GridLayout(0, 2, 8, 8));
-        form.add(new JLabel("BANCO: "));
-        form.add(comboBanco);
-        form.add(new JLabel("TELEFONO: "));
-        form.add(txtTelefono);
-        form.add(new JLabel("CEDULA: "));
-        form.add(txtCedula);
-        form.add(new JLabel("MONTO (.BS): "));
-        form.add(comboMonto);
+        JPanel form = Estilos.crearFormulario();
+        Estilos.agregarCampo(form, "Banco:", comboBanco);
+        Estilos.agregarCampo(form, "Teléfono:", txtTelefono);
+        Estilos.agregarCampo(form, "Cédula:", txtCedula);
+        Estilos.agregarCampo(form, "Número de referencia:", txtReferencia);
+        Estilos.agregarCampo(form, "Monto (Bs.):", comboMonto);
 
         while(true) {
-            int opcion = JOptionPane.showConfirmDialog(this, form, "RECARGA CON PAGO MOVIL", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            int opcion = JOptionPane.showConfirmDialog(this, form, "Recarga con Pago Móvil", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (opcion != JOptionPane.OK_OPTION) return;
 
             try {
                 String referencia = authController.recargarMonedero(
-                    user, (String) comboBanco.getSelectedItem(), txtTelefono.getText(), txtCedula.getText(), (BigDecimal) comboMonto.getSelectedItem());
+                    user, (String) comboBanco.getSelectedItem(), txtTelefono.getText(), txtCedula.getText(), txtReferencia.getText(), (BigDecimal) comboMonto.getSelectedItem());
                     actualizarSaldo();
-                    JOptionPane.showMessageDialog(this, "[REFERENCIA EXITOSA]\n, REFERENCIA: " + referencia, "LISTO", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Recarga exitosa.\nReferencia: " + referencia, "Listo", JOptionPane.INFORMATION_MESSAGE);
                     return;
             }
-            catch (IllegalArgumentException | IllegalStateException ex) { JOptionPane.showMessageDialog(this, ex.getMessage(), "[ERROR]", JOptionPane.ERROR_MESSAGE); }
+            catch (IllegalArgumentException | IllegalStateException ex) { JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); }
         }
     }
 
