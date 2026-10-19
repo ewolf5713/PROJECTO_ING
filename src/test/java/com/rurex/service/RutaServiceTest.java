@@ -18,46 +18,86 @@ public class RutaServiceTest {
         rutaService = new RutaService();
     }
 
+    private Ruta buscar(String nombre) {
+        return rutaService.getRutas().stream()
+                .filter(r -> r.getNombre().equals(nombre))
+                .findFirst().orElseThrow();
+    }
+
     @Test
-    void testInitialRutas() {
+    void testDefaultRoutesLoaded() {
         List<Ruta> rutas = rutaService.getRutas();
-        assertFalse(rutas.isEmpty());
         assertEquals(5, rutas.size());
-        assertEquals(5, rutaService.getRutasActivas().size());
+        assertTrue(rutas.stream().allMatch(Ruta::isActivada));
+        assertEquals(TipoRuta.URBANA, buscar("Plaza Venezuela - UCV").getTipo());
     }
 
     @Test
-    void testAgregarRutaSuccess() {
-        Ruta nueva = new Ruta("Caracas - Valencia", "Caracas", "Valencia", TipoRuta.EXTRAURBANA, List.of("Maracay", "Guacara"));
-        rutaService.agregar(nueva);
+    void testAddNewRoute() {
+        rutaService.agregar(new Ruta("Caricuao - UCV", "Caricuao", "Ciudad Universitaria",
+                TipoRuta.URBANA, List.of("La Paz", "")));
         assertEquals(6, rutaService.getRutas().size());
+        assertEquals(List.of("La Paz"), buscar("Caricuao - UCV").getParadas());
     }
 
     @Test
-    void testRejectDuplicateNombre() {
-        assertThrows(IllegalArgumentException.class, () ->
-                rutaService.agregar(new Ruta("Plaza Venezuela - UCV", "Origen", "Destino", TipoRuta.URBANA))
+    void testRejectDuplicateNameIgnoringCaseAndSpaces() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                rutaService.agregar(new Ruta("  petare - ucv ", "Petare", "Chacaito", TipoRuta.URBANA))
         );
+        assertTrue(ex.getMessage().contains("Ya existe una ruta"));
+        assertEquals(5, rutaService.getRutas().size());
+    }
+
+    @Test
+    void testUpdateCanKeepOwnName() {
+        Ruta ruta = buscar("Petare - UCV");
+        rutaService.actualizar(ruta, "Petare - UCV", "Petare", "Ciudad Universitaria",
+                TipoRuta.EXTRAURBANA, List.of("Los Dos Caminos"));
+        assertEquals(TipoRuta.EXTRAURBANA, ruta.getTipo());
+        assertEquals(List.of("Los Dos Caminos"), ruta.getParadas());
+    }
+
+    @Test
+    void testUpdateRejectsOtherRouteNameAndKeepsRouteUnchanged() {
+        Ruta ruta = buscar("Petare - UCV");
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                rutaService.actualizar(ruta, "Guarenas - UCV", "Otro Origen", "Otro Destino",
+                        TipoRuta.EXTRAURBANA, List.of("Parada"))
+        );
+        assertTrue(ex.getMessage().contains("Ya existe una ruta"));
+        assertEquals("Petare - UCV", ruta.getNombre());
+        assertEquals("Petare", ruta.getOrigen());
+        assertEquals("Ciudad Universitaria", ruta.getDestino());
+        assertEquals(TipoRuta.URBANA, ruta.getTipo());
+        assertTrue(ruta.getParadas().isEmpty());
+    }
+
+    @Test
+    void testActiveRoutesExcludeDeactivated() {
+        Ruta ruta = buscar("Los Teques - UCV");
+        ruta.setActivada(false);
+        List<Ruta> activas = rutaService.getRutasActivas();
+        assertEquals(4, activas.size());
+        assertFalse(activas.contains(ruta));
+        assertEquals(5, rutaService.getRutas().size());
+    }
+
+    @Test
+    void testRouteRejectsBlankName() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new Ruta("   ", "Origen", "Destino", TipoRuta.URBANA)
+        );
+        assertEquals("El nombre es obligatorio.", ex.getMessage());
     }
 
     @Test
     void testAlternarEstado() {
         Ruta r = rutaService.getRutas().get(0);
-        assertTrue(r.isActivada());
         rutaService.alternarEstado(r);
         assertFalse(r.isActivada());
         assertEquals(4, rutaService.getRutasActivas().size());
         rutaService.alternarEstado(r);
         assertTrue(r.isActivada());
-        assertEquals(5, rutaService.getRutasActivas().size());
-    }
-
-    @Test
-    void testActualizarRuta() {
-        Ruta r = rutaService.getRutas().get(0);
-        rutaService.actualizar(r, "Plaza Venezuela - UCV Modificada", "Plaza Venezuela", "Facultad de Ciencias", TipoRuta.URBANA, List.of("Puerta Tamanaco"));
-        assertEquals("Plaza Venezuela - UCV Modificada", r.getNombre());
-        assertEquals("Facultad de Ciencias", r.getDestino());
-        assertEquals(1, r.getParadas().size());
     }
 }
