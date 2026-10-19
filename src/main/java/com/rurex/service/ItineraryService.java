@@ -19,7 +19,7 @@ public class ItineraryService {
         cargarItinerariosDemo();
     }
 
-    public synchronized Itinerary crearItinerario(String ruta, LocalDate fecha, LocalTime salida, LocalTime llegada, String placa, String chofer, Integer cupos) {
+    public synchronized Itinerary crearItinerario(String ruta, LocalDate fecha, LocalTime salida, LocalTime llegada, String placa, String chofer, Integer cupos, boolean extraurbana) {
         if (ruta == null || ruta.isBlank()) {
             throw new IllegalArgumentException("La ruta es obligatoria.");
         }
@@ -57,16 +57,7 @@ public class ItineraryService {
         }
 
         String id = "IT-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase();
-        Itinerary nuevo = new Itinerary(
-                id,
-                ruta.trim(),
-                fecha,
-                salida,
-                llegadaFinal,
-                unidad,
-                choferFinal,
-                cuposFinal
-        );
+        Itinerary nuevo = new Itinerary(id, ruta, fecha, salida, llegadaFinal, unidad, choferFinal, cuposFinal, extraurbana);
 
         itinerariosList.add(nuevo);
         return nuevo;
@@ -135,9 +126,9 @@ public class ItineraryService {
     private void cargarItinerariosDemo() {
         try {
             LocalDate hoy = LocalDate.now().plusDays(1);
-            crearItinerario("Plaza Venezuela - UCV", hoy, LocalTime.of(7, 30), LocalTime.of(8, 15), "UCV-234", "Jose Martinez", 32);
-            crearItinerario("La Rinconada - UCV", hoy, LocalTime.of(6, 30), LocalTime.of(7, 30), "UCV-156", "Carlos Gomez", 30);
-            crearItinerario("Guarenas - UCV", hoy, LocalTime.of(5, 45), LocalTime.of(7, 0), "UCV-789", "Pedro Perez", 40);
+            crearItinerario("Plaza Venezuela - UCV", hoy, LocalTime.of(7, 30), LocalTime.of(8, 15), "UCV-234", "Jose Martinez", 32, false);
+            crearItinerario("La Rinconada - UCV", hoy, LocalTime.of(6, 30), LocalTime.of(7, 30), "UCV-156", "Carlos Gomez", 30, true);
+            crearItinerario("Guarenas - UCV", hoy, LocalTime.of(5, 45), LocalTime.of(7, 0), "UCV-789", "Pedro Perez", 40, true);
         } catch (Exception ignored) {}
     }
 }

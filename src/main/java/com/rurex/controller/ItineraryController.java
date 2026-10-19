@@ -28,7 +28,7 @@ public class ItineraryController {
 
     public void guardarItinerario(String ruta, LocalDate fecha, LocalTime dep, LocalTime arr, String placa, String chofer, int cupos) {
         try {
-            itineraryService.crearItinerario(ruta, fecha, dep, arr, placa, chofer, cupos);
+            itineraryService.crearItinerario(ruta, fecha, dep, arr, placa, chofer, cupos, false);
             JOptionPane.showMessageDialog(itineraryView, "Itinerario creado con exito.", "Listo", JOptionPane.INFORMATION_MESSAGE);
             if (itineraryView != null) itineraryView.actualizarTabla();
         } catch (IllegalArgumentException ex) {

@@ -35,7 +35,8 @@ public class ItineraryServiceTest {
                 LocalTime.of(10, 0),
                 "UCV-234",
                 "Pedro Infante",
-                32
+                32,
+                true
         );
 
         assertNotNull(it);
@@ -54,7 +55,8 @@ public class ItineraryServiceTest {
                         LocalTime.of(9, 0),
                         "UCV-445",
                         "Chofer",
-                        20
+                        20,
+                        true
                 )
         );
         assertTrue(ex.getMessage().contains("no puede asignarse"));
@@ -65,10 +67,10 @@ public class ItineraryServiceTest {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         LocalTime dep = LocalTime.of(10, 0);
 
-        itineraryService.crearItinerario("Ruta A", tomorrow, dep, dep.plusHours(1), "UCV-234", "Chofer A", 30);
+        itineraryService.crearItinerario("Ruta A", tomorrow, dep, dep.plusHours(1), "UCV-234", "Chofer A", 30, true);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
-                itineraryService.crearItinerario("Ruta B", tomorrow, dep, dep.plusHours(1), "UCV-234", "Chofer B", 30)
+                itineraryService.crearItinerario("Ruta B", tomorrow, dep, dep.plusHours(1), "UCV-234", "Chofer B", 30, true)
         );
         assertTrue(ex.getMessage().contains("ya tiene viaje"));
     }
@@ -76,10 +78,10 @@ public class ItineraryServiceTest {
     @Test
     void testRejectOverlappingTripOnSameUnit() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
-        itineraryService.crearItinerario("Ruta A", tomorrow, LocalTime.of(10, 0), LocalTime.of(11, 0), "UCV-234", "Chofer A", 30);
+        itineraryService.crearItinerario("Ruta A", tomorrow, LocalTime.of(10, 0), LocalTime.of(11, 0), "UCV-234", "Chofer A", 30, true);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
-                itineraryService.crearItinerario("Ruta B", tomorrow, LocalTime.of(10, 30), LocalTime.of(11, 30), "UCV-234", "Chofer B", 30)
+                itineraryService.crearItinerario("Ruta B", tomorrow, LocalTime.of(10, 30), LocalTime.of(11, 30), "UCV-234", "Chofer B", 30, true)
         );
         assertTrue(ex.getMessage().contains("ya tiene viaje"));
     }
@@ -87,10 +89,10 @@ public class ItineraryServiceTest {
     @Test
     void testRejectOverlappingTripForSameDriver() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
-        itineraryService.crearItinerario("Ruta A", tomorrow, LocalTime.of(10, 0), LocalTime.of(11, 0), "UCV-234", "Ana Lopez", 30);
+        itineraryService.crearItinerario("Ruta A", tomorrow, LocalTime.of(10, 0), LocalTime.of(11, 0), "UCV-234", "Ana Lopez", 30, true);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
-                itineraryService.crearItinerario("Ruta B", tomorrow, LocalTime.of(10, 45), LocalTime.of(11, 45), "UCV-789", "  ana lopez ", 30)
+                itineraryService.crearItinerario("Ruta B", tomorrow, LocalTime.of(10, 45), LocalTime.of(11, 45), "UCV-789", "  ana lopez ", 30, true)
         );
         assertTrue(ex.getMessage().contains("conductor"));
     }
@@ -98,10 +100,10 @@ public class ItineraryServiceTest {
     @Test
     void testAllowBackToBackTripsForSameUnitAndDriver() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
-        itineraryService.crearItinerario("Ruta A", tomorrow, LocalTime.of(10, 0), LocalTime.of(11, 0), "UCV-234", "Ana Lopez", 30);
+        itineraryService.crearItinerario("Ruta A", tomorrow, LocalTime.of(10, 0), LocalTime.of(11, 0), "UCV-234", "Ana Lopez", 30, true);
 
         assertDoesNotThrow(() ->
-                itineraryService.crearItinerario("Ruta B", tomorrow, LocalTime.of(11, 0), LocalTime.of(12, 0), "UCV-234", "Ana Lopez", 30)
+                itineraryService.crearItinerario("Ruta B", tomorrow, LocalTime.of(11, 0), LocalTime.of(12, 0), "UCV-234", "Ana Lopez", 30, true)
         );
     }
 
@@ -109,7 +111,7 @@ public class ItineraryServiceTest {
     void testRejectSeatsExceedingCapacity() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
-                itineraryService.crearItinerario("Ruta Exceso", tomorrow, LocalTime.of(12, 0), LocalTime.of(13, 0), "UCV-234", "Chofer", 999)
+                itineraryService.crearItinerario("Ruta Exceso", tomorrow, LocalTime.of(12, 0), LocalTime.of(13, 0), "UCV-234", "Chofer", 999, true)
         );
         assertTrue(ex.getMessage().contains("superan la capacidad"));
     }
@@ -156,7 +158,7 @@ public class ItineraryServiceTest {
 
     @Test
     void testCrearTripSinSeparadorUsaUnaParada() {
-        Itinerary it = itineraryService.crearItinerario("Circuito", LocalDate.now().plusDays(1), LocalTime.of(9, 0), LocalTime.of(10, 0), "UCV-234", "Ana", 10);
+        Itinerary it = itineraryService.crearItinerario("Circuito", LocalDate.now().plusDays(1), LocalTime.of(9, 0), LocalTime.of(10, 0), "UCV-234", "Ana", 10, true);
         Trip trip = itineraryService.crearTrip(it);
         assertEquals(1, trip.stops().size());
         assertEquals("Circuito", trip.stops().get(0).name());
