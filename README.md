@@ -44,7 +44,13 @@ Extra: demo de estado del recorrido (HU-008) dentro de los paneles de pasajero y
 
 ### Descargar la app
 
-Para usar la app sin compilar nada, descarga el paquete de Windows o Linux desde [Releases](https://github.com/ewolf5713/PROJECTO_ING/releases/latest). Los pasos estan en [INSTALL.md](INSTALL.md).
+Para usar la app sin compilar nada, descarga un archivo desde [Releases](https://github.com/ewolf5713/PROJECTO_ING/releases/latest):
+
+| Archivo | Sistema | Como abrirlo |
+|---|---|---|
+| `RUREX-windows.zip` | Windows 10/11, sin Java | Extraer todo y doble clic en `RUREX/RUREX.exe` (si sale "Windows protegió su PC": Más información → Ejecutar de todas formas) |
+| `RUREX-linux.tar.gz` | Linux 64 bits, sin Java | `tar -xzf RUREX-linux.tar.gz && ./RUREX/bin/RUREX` |
+| `RUREX.jar` | Cualquiera con Java 17+ | `java -jar RUREX.jar` |
 
 ### Requisitos
 
