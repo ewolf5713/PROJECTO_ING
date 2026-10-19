@@ -72,4 +72,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
-        run: gh release create "$TAG" files/* --title "RUREX $TAG" --notes-file INSTALL.md
+        run: gh release create "$TAG" files/* --title "RUREX $TAG" --generate-notes
