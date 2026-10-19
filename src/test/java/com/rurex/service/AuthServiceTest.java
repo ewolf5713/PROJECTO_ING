@@ -6,8 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class AuthServiceTest {
 
@@ -74,5 +76,82 @@ public class AuthServiceTest {
         assertTrue(result.isPresent());
         assertEquals("Carlos Gomez", result.get().getNombreCompleto());
         assertEquals(UserRole.CONDUCTOR, result.get().getRol());
+    }
+
+    @Test 
+    void usuarioNuevoTieneSaldoCero() {
+        AuthService auth = new AuthService();
+        auth.registrarUsuario("Ana Perez", "ana@ucv.ve", "V-12345678", UserRole.ESTUDIANTE, "20-11111", "clave123");
+        assertEquals(0, auth.consultarSaldo("ana@ucv.ve").compareTo(BigDecimal.ZERO));
+    }
+
+    @Test 
+    void estudianteDemoTieneSaldoInicial() {
+        AuthService auth = new AuthService();
+        assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("25.00")));
+    }
+
+    @Test 
+    void administradorNoTieneMonedero() {
+        AuthService auth = new AuthService();
+        assertThrows(IllegalStateException.class, () -> auth.consultarSaldo("admin@ucv.ve"));
+    }
+
+    @Test 
+    void recargaValidaAumentaElSaldo() {
+        AuthService auth = new AuthService();
+        String ref = auth.recargarMonedero("estudiante@ucv.ve", "Banesco", "04141234567", "V12345678", new BigDecimal("10.00"));
+        assumeTrue(ref.startsWith("PM-"));
+        assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("35.00")));
+    }
+
+    @Test 
+    void telefonoInvalidoRechazaYnoCambiaElSaldo() {
+        AuthService auth = new AuthService();
+        assertThrows(IllegalArgumentException.class, () -> auth.recargarMonedero(
+            "estudiante@ucv.ve", "Banesco", "123", "V12345678", new BigDecimal("10.00")));
+    }
+
+    @Test 
+    void montoNoPermitidoSeRechaza() {
+        AuthService auth = new AuthService();
+        assertThrows(IllegalArgumentException.class, () -> auth.recargarMonedero(
+            "estudiante@ucv.ve", "Banesco", "04141234567", "V12345678", new BigDecimal("7.00")));
+    }
+
+    @Test 
+    void administradorNoPuedeRecargar() {
+        AuthService auth = new AuthService();
+        assertThrows(IllegalArgumentException.class, () -> auth.recargarMonedero(
+            "admin@ucv.ve", "Banesco", "04141234567", "V12345678", new BigDecimal("10.00")));
+    }
+
+    @Test
+    void pagarTicketDescuentaElPrecio() {
+        AuthService auth = new AuthService();
+        auth.pagarTicketExtraurbano("estudiante@ucv.ve", "IT-1");
+        assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("15.00")));
+    }
+
+    @Test
+    void noSePuedePagarDosVecesElMismoItinerario() {
+        AuthService auth = new AuthService();
+        auth.pagarTicketExtraurbano("estudiante@ucv.ve", "IT-1");
+        assertThrows(IllegalStateException.class, () -> auth.pagarTicketExtraurbano("estudiante@ucv.ve", "IT-1"));
+        assertEquals(0, auth.consultarSaldo("estudiante@ucv.ve").compareTo(new BigDecimal("15.00")));
+    }
+
+    @Test
+    void saldoInsuficienteRechazaYNoCambiaElSaldo() {
+        AuthService auth = new AuthService();
+        auth.registrarUsuario("Ana Perez", "ana@ucv.ve", "V-12345678", UserRole.ESTUDIANTE, "20-11111", "clave123");
+        assertThrows(IllegalStateException.class, () -> auth.pagarTicketExtraurbano("ana@ucv.ve", "IT-1"));
+        assertEquals(0, auth.consultarSaldo("ana@ucv.ve").compareTo(BigDecimal.ZERO));
+    }
+
+    @Test
+    void administradorNoPuedePagarTicket() {
+        AuthService auth = new AuthService();
+        assertThrows(IllegalStateException.class, () -> auth.pagarTicketExtraurbano("admin@ucv.ve", "IT-1"));
     }
 }

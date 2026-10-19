@@ -35,6 +35,7 @@ public class ItineraryDatabase {
             map.put("placa", it.getUnidad().getPlaca());
             map.put("conductor", it.getConductor());
             map.put("cuposDisponibles", it.getCuposDisponibles());
+            map.put("extraurbana", it.isExtraurbana());
             list.add(map);
         }
         JsonFileStorage.write(filePath, Json.serialize(list));
@@ -70,7 +71,7 @@ public class ItineraryDatabase {
                 unidad = new TransportUnit(placa, "Unidad", cupos, null);
             }
 
-            result.add(new Itinerary(id, ruta, fecha, salida, llegada, unidad, conductor, cupos));
+            result.add(new Itinerary(id, ruta, fecha, salida, llegada, unidad, conductor, cupos, Boolean.TRUE.equals(map.get("extraurbana"))));
         }
         return result;
     }

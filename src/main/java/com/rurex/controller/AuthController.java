@@ -14,6 +14,8 @@ import com.rurex.view.RegisterView;
 
 import javax.swing.*;
 import java.util.Optional;
+import java.math.BigDecimal;
+import java.util.List;
 
 public class AuthController {
 
@@ -65,6 +67,8 @@ public class AuthController {
         }
     }
 
+    public BigDecimal consultarSaldo(User user) { return authService.consultarSaldo(user.getEmail()); }
+
     public void mostrarRegistro() {
         if (loginView != null) loginView.setVisible(false);
         if (registerView != null) registerView.dispose();
@@ -96,4 +100,15 @@ public class AuthController {
         loginView = new LoginView(this);
         loginView.setVisible(true);
     }
+
+    public String recargarMonedero(User user, String banco, String telefono, String cedula, BigDecimal monto) {
+        return authService.recargarMonedero(user.getEmail(), banco, telefono, cedula, monto);
+    }
+
+    public List<BigDecimal> getMontosRecarga() {
+        return AuthService.MONTOS_RECARGA;
+    }
+
+    public String pagarTicketExtraurbano(User user, String itinerarioId) { return authService.pagarTicketExtraurbano(user.getEmail(), itinerarioId); }
+    public BigDecimal getPrecioTicketExtraurbano() { return AuthService.PRECIO_TICKET_EXTRAURBANA;}
 }

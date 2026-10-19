@@ -50,6 +50,9 @@ public class DatabaseManagerTest {
         AuthService authService2 = new AuthService(dbManager.getUserDatabase());
         assertTrue(authService2.autenticar("pedro@ucv.ve", "ClaveSegura123").isPresent());
         assertTrue(authService2.autenticar("superadmin", "Superadmin123").isPresent());
+
+        authService.recargarMonedero("estudiante@ucv.ve", "Banco", "04121234567", "V-25000000", new java.math.BigDecimal("10.00"));
+        assertEquals(new java.math.BigDecimal("35.00"), new AuthService(dbManager.getUserDatabase()).consultarSaldo("estudiante@ucv.ve"));
     }
 
     @Test
@@ -79,7 +82,7 @@ public class DatabaseManagerTest {
         assertTrue(Files.exists(tempDir.resolve("itinerarios.json")));
 
         LocalDate date = LocalDate.now().plusDays(2);
-        Itinerary it = itineraryService.crearItinerario("Caracas - Maracay", date, LocalTime.of(8, 0), LocalTime.of(10, 0), "UCV-234", "Luis Chofer", 25);
+        Itinerary it = itineraryService.crearItinerario("Caracas - Maracay", date, LocalTime.of(8, 0), LocalTime.of(10, 0), "UCV-234", "Luis Chofer", 25, false);
 
         ItineraryService itineraryService2 = new ItineraryService(fleetService, dbManager.getItineraryDatabase());
         assertTrue(itineraryService2.getItinerarios().stream().anyMatch(i -> i.getId().equals(it.getId())));

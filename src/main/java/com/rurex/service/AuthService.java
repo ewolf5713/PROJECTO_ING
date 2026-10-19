@@ -10,6 +10,7 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.math.BigDecimal;
 
 public class AuthService {
 
@@ -18,9 +19,14 @@ public class AuthService {
     public static final String SUPERADMIN_USERNAME = "superadmin";
 
     private static final Pattern PATRON_CORREO = Pattern.compile("^[A-Za-z0-9._%+-]+@([A-Za-z0-9.-]+\\.)?(ucv\\.ve|gmail\\.com)$");
+    private static final Pattern PATRON_TELEFONO = Pattern.compile("^04(12|14|16|24|26)\\d{7}$");
+    private static final Pattern PATRON_CEDULA_PM = Pattern.compile("^[VEve]-?\\d{6,9}$");
+    public static final BigDecimal PRECIO_TICKET_EXTRAURBANA = new BigDecimal("10.00");
+    public static final List<BigDecimal> MONTOS_RECARGA = List.of(new BigDecimal("5.00"), new BigDecimal("10.00"), new BigDecimal("20.00"), new BigDecimal("50.00"));
     private final Map<String, User> usuariosPorEmail = new HashMap<>();
     private final Map<String, User> usuariosPorCedula = new HashMap<>();
     private UserDatabase database;
+    private final Set<String> ticketsPagados = new HashSet<>();
 
     public AuthService() {
         cargarDatosPrueba();
@@ -132,6 +138,53 @@ public class AuthService {
         }
     }
 
+    public synchronized BigDecimal consultarSaldo(String email) {
+        User usuario = usuariosPorEmail.get(email == null ? "" : email.trim().toLowerCase());
+        if (usuario == null) { throw new IllegalArgumentException("[USUARIO NO ENCONTRADO]");}
+        if (!usuario.tieneMonedero()) {throw new IllegalStateException("[USUARIO NO TIENE MONEDERO]");}
+        
+        return usuario.getSaldo();
+    }
+
+    public synchronized String pagarTicketExtraurbano(String email, String itinerarioId) {
+    User usuario = usuariosPorEmail.get(email == null ? "" : email.trim().toLowerCase());
+    if (usuario == null) {
+        throw new IllegalArgumentException("Usuario no encontrado.");
+    }
+    if (itinerarioId == null || itinerarioId.isBlank()) {
+        throw new IllegalArgumentException("Itinerario invalido.");
+    }
+    if (!usuario.tieneMonedero()) {
+        throw new IllegalStateException("Este tipo de usuario no tiene monedero.");
+    }
+    String clave = usuario.getEmail() + "|" + itinerarioId;
+    if (ticketsPagados.contains(clave)) {
+        throw new IllegalStateException("Ya pagaste el ticket de este itinerario.");
+    }
+    if (usuario.getSaldo().compareTo(PRECIO_TICKET_EXTRAURBANA) < 0) {
+        throw new IllegalStateException("Saldo insuficiente para pagar el ticket.");
+    }
+
+    usuario.debitar(PRECIO_TICKET_EXTRAURBANA);
+    ticketsPagados.add(clave);
+    notificarCambio();
+    return "TK-" + (100000 + new SecureRandom().nextInt(900000));
+}
+
+    public synchronized String recargarMonedero(String email, String banco, String telefono, String cedula, BigDecimal monto) {
+        User usuario = usuariosPorEmail.get(email == null ? "" : email.trim().toLowerCase());
+        if (usuario == null) { throw new IllegalArgumentException("[USUARIO NO ENCONTRADO]"); }
+        if (!usuario.tieneMonedero()) { throw new IllegalArgumentException("[USUARIO NO TIENE MONEDERO]"); }
+        if (banco == null || banco.isBlank()) { throw new IllegalArgumentException("[SELECIONES BANCO]"); }
+        if (telefono == null || !PATRON_TELEFONO.matcher(telefono.trim()).matches()) { throw new IllegalArgumentException("[TELEFONO INVALIDO]"); }
+        if (cedula == null || !PATRON_CEDULA_PM.matcher(cedula.trim()).matches()) { throw new IllegalArgumentException("[CEDULA INVALIDA]"); }
+        if (monto == null || MONTOS_RECARGA.stream().noneMatch(m -> m.compareTo(monto) == 0)) { throw new IllegalArgumentException("[SELECCIONE MONTO A RECARGAR]"); }
+
+        usuario.acreditar(monto);
+        notificarCambio();
+        return "PM-" + (10000 + new SecureRandom().nextInt(900000));
+    }
+
     private void validarCampos(String nombre, String email, String cedula, String password) {
         if (nombre == null || nombre.isBlank()) {
             throw new IllegalArgumentException("El nombre y apellido son obligatorios.");
@@ -183,7 +236,7 @@ public class AuthService {
             usuariosPorEmail.put(admin.getEmail(), admin);
             usuariosPorCedula.put(admin.getCedula(), admin);
 
-            User estudiante = new User("Estudiante Demo", "estudiante@ucv.ve", "V-25000000", UserRole.ESTUDIANTE, "20-12345", hashPassword("Estudiante123"));
+            User estudiante = new User("Estudiante Demo", "estudiante@ucv.ve", "V-25000000", UserRole.ESTUDIANTE, "20-12345", hashPassword("Estudiante123"), new BigDecimal("25.00"));
             usuariosPorEmail.put(estudiante.getEmail(), estudiante);
             usuariosPorCedula.put(estudiante.getCedula(), estudiante);
 

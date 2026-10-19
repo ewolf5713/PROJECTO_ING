@@ -12,8 +12,9 @@ public class Itinerary {
     private TransportUnit unidad;
     private String conductor;
     private int cuposDisponibles;
+    private boolean extraurbana;
 
-    public Itinerary(String id, String rutaNombre, LocalDate fecha, LocalTime horaSalida, LocalTime horaLlegada, TransportUnit unidad, String conductor, int cuposDisponibles) {
+    public Itinerary(String id, String rutaNombre, LocalDate fecha, LocalTime horaSalida, LocalTime horaLlegada, TransportUnit unidad, String conductor, int cuposDisponibles, boolean extraurbana) {
         this.id = id;
         this.rutaNombre = rutaNombre;
         this.fecha = fecha;
@@ -22,6 +23,7 @@ public class Itinerary {
         this.unidad = unidad;
         this.conductor = conductor;
         this.cuposDisponibles = cuposDisponibles;
+        this.extraurbana = extraurbana;
     }
 
     public String getId() { return id; }
@@ -32,4 +34,5 @@ public class Itinerary {
     public TransportUnit getUnidad() { return unidad; }
     public String getConductor() { return conductor; }
     public int getCuposDisponibles() { return cuposDisponibles; }
+    public boolean isExtraurbana() { return extraurbana; }
 }

@@ -3,6 +3,7 @@ package com.rurex.database;
 import com.rurex.model.User;
 import com.rurex.model.UserRole;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class UserDatabase {
@@ -32,6 +33,7 @@ public class UserDatabase {
             map.put("rol", u.getRol().name());
             map.put("carnet", u.getCarnet());
             map.put("passwordHash", u.getPasswordHash());
+            map.put("saldo", u.getSaldo().toPlainString());
             list.add(map);
         }
         JsonFileStorage.write(filePath, Json.serialize(list));
@@ -51,6 +53,7 @@ public class UserDatabase {
             String rolStr = (String) map.get("rol");
             String carnet = (String) map.get("carnet");
             String hash = (String) map.get("passwordHash");
+            Object saldo = map.get("saldo");
             UserRole rol = UserRole.ESTUDIANTE;
             if (rolStr != null) {
                 try {
@@ -58,7 +61,7 @@ public class UserDatabase {
                 } catch (Exception ignored) {
                 }
             }
-            users.add(new User(nombre, email, cedula, rol, carnet != null ? carnet : "", hash));
+            users.add(new User(nombre, email, cedula, rol, carnet != null ? carnet : "", hash, saldo != null ? new BigDecimal(saldo.toString()) : BigDecimal.ZERO));
         }
         return users;
     }
