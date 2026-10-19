@@ -11,6 +11,8 @@ import com.rurex.view.ConductorDashboardView;
 import com.rurex.view.LoginView;
 import com.rurex.view.PassengerDashboardView;
 import com.rurex.view.RegisterView;
+import com.rurex.view.Estilos;
+import com.rurex.view.UsuariosView;
 
 import javax.swing.*;
 import java.util.Optional;
@@ -27,6 +29,8 @@ public class AuthController {
     private final FleetService fleetService;
     private final ItineraryService itineraryService;
     private final TripService tripService;
+    private User usuarioActual;
+    private UsuariosView usuariosView;
 
     public AuthController(AuthService authService, FleetController fleetController, ItineraryController itineraryController, FleetService fleetService, ItineraryService itineraryService, TripService tripService) {
         this.tripService = tripService;
@@ -51,8 +55,10 @@ public class AuthController {
             User user = userOpt.get();
             JOptionPane.showMessageDialog(loginView, "Bienvenido " + user.getNombreCompleto(), "Login OK", JOptionPane.INFORMATION_MESSAGE);
             loginView.dispose();
+            usuarioActual = user;
+            Estilos.setSuperAdmin(authService.esSuperAdmin(user));
 
-            if (user.getRol() == UserRole.ADMINISTRADOR) {
+            if (user.getRol() == UserRole.ADMINISTRADOR || user.getRol() == UserRole.SUPER_ADMIN) {
                 AdminDashboardView dashboard = new AdminDashboardView(user, this, fleetController, itineraryController, fleetService, itineraryService);
                 dashboard.setVisible(true);
             } else if (user.getRol() == UserRole.CONDUCTOR) {
@@ -76,14 +82,28 @@ public class AuthController {
         registerView.setVisible(true);
     }
 
-    public void registrar(String nombre, String email, String cedula, UserRole rol, String carnet, String pass, String confirmPass) {
+    public void mostrarUsuarios() {
+        if (usuariosView != null) usuariosView.dispose();
+        usuariosView = new UsuariosView(this);
+        usuariosView.setVisible(true);
+    }
+
+    public List<User> getUsuarios() {
+        return authService.getUsuarios();
+    }
+
+    public void cambiarRol(String cedula, UserRole rol) {
+        authService.cambiarRol(usuarioActual, cedula, rol);
+    }
+
+    public void registrar(String nombre, String email, String cedula, String carnet, String pass, String confirmPass) {
         if (!pass.equals(confirmPass)) {
             JOptionPane.showMessageDialog(registerView, "Las contraseñas no coinciden.", "Alerta", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         try {
-            authService.registrarUsuario(nombre, email, cedula, rol, carnet, pass);
+            authService.registrarUsuario(nombre, email, cedula, carnet, pass);
             JOptionPane.showMessageDialog(registerView, "Usuario registrado con exito.", "Listo", JOptionPane.INFORMATION_MESSAGE);
             volverLogin();
         } catch (IllegalArgumentException ex) {

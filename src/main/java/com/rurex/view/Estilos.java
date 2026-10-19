@@ -39,6 +39,11 @@ public class Estilos {
     private static FleetController fleetController;
     private static ItineraryController itineraryController;
     private static RutaController rutaController;
+    private static boolean superAdmin;
+
+    public static void setSuperAdmin(boolean valor) {
+        superAdmin = valor;
+    }
 
     public static void iniciarSesion(String nombre, JFrame inicio, AuthController auth, FleetController fleet, ItineraryController itinerary) {
         nombreUsuario = nombre;
@@ -606,6 +611,16 @@ public class Estilos {
         nav.add(btnItinerarios);
         nav.add(Box.createVerticalStrut(4));
         nav.add(btnRutas);
+        if (superAdmin) {
+            JButton btnUsuarios = crearBotonNav("Usuarios", activo.equals("Usuarios"));
+            btnUsuarios.addActionListener(e -> {
+                if (activo.equals("Usuarios")) return;
+                authController.mostrarUsuarios();
+                ventana.setVisible(false);
+            });
+            nav.add(Box.createVerticalStrut(4));
+            nav.add(btnUsuarios);
+        }
         sidebar.add(nav, BorderLayout.CENTER);
 
         sidebar.add(crearPieSidebar(ventana), BorderLayout.SOUTH);

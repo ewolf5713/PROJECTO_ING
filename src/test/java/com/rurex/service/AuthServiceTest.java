@@ -26,7 +26,6 @@ public class AuthServiceTest {
                 "Daniel Quiaro",
                 "daniel.quiaro@ciens.ucv.ve",
                 "V-32080586",
-                UserRole.ADMINISTRADOR,
                 "",
                 "MiClaveSegura2026"
         );
@@ -34,17 +33,23 @@ public class AuthServiceTest {
         Optional<User> byEmail = authService.autenticar("daniel.quiaro@ciens.ucv.ve", "MiClaveSegura2026");
         assertTrue(byEmail.isPresent());
         assertEquals("Daniel Quiaro", byEmail.get().getNombreCompleto());
-        assertEquals(UserRole.ADMINISTRADOR, byEmail.get().getRol());
+        assertEquals(UserRole.EMPLEADO, byEmail.get().getRol());
 
         Optional<User> byIdCard = authService.autenticar("V-32080586", "MiClaveSegura2026");
         assertTrue(byIdCard.isPresent());
     }
 
     @Test
+    void registroConCarnetAsignaEstudiante() {
+        authService.registrarUsuario("Ana Perez", "ana@ucv.ve", "V-12345678", "20-11111", "clave123");
+        assertEquals(UserRole.ESTUDIANTE, authService.autenticar("ana@ucv.ve", "clave123").get().getRol());
+    }
+
+    @Test
     void testRejectDuplicateEmail() {
-        authService.registrarUsuario("Usuario Uno", "duplicado@ucv.ve", "V-11111111", UserRole.ESTUDIANTE, "20-1111", "Clave123");
+        authService.registrarUsuario("Usuario Uno", "duplicado@ucv.ve", "V-11111111", "20-1111", "Clave123");
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
-                authService.registrarUsuario("Usuario Dos", "duplicado@ucv.ve", "V-22222222", UserRole.ESTUDIANTE, "20-2222", "Clave123")
+                authService.registrarUsuario("Usuario Dos", "duplicado@ucv.ve", "V-22222222", "20-2222", "Clave123")
         );
         assertTrue(ex.getMessage().contains("ya esta registrado"));
     }
@@ -52,7 +57,7 @@ public class AuthServiceTest {
     @Test
     void testRejectInvalidEmailFormat() {
         assertThrows(IllegalArgumentException.class, () ->
-                authService.registrarUsuario("Invalido", "test@yahoo.com", "V-33333333", UserRole.ESTUDIANTE, "", "Clave123")
+                authService.registrarUsuario("Invalido", "test@yahoo.com", "V-33333333", "", "Clave123")
         );
     }
 
@@ -81,7 +86,7 @@ public class AuthServiceTest {
     @Test 
     void usuarioNuevoTieneSaldoCero() {
         AuthService auth = new AuthService();
-        auth.registrarUsuario("Ana Perez", "ana@ucv.ve", "V-12345678", UserRole.ESTUDIANTE, "20-11111", "clave123");
+        auth.registrarUsuario("Ana Perez", "ana@ucv.ve", "V-12345678", "20-11111", "clave123");
         assertEquals(0, auth.consultarSaldo("ana@ucv.ve").compareTo(BigDecimal.ZERO));
     }
 
@@ -144,7 +149,7 @@ public class AuthServiceTest {
     @Test
     void saldoInsuficienteRechazaYNoCambiaElSaldo() {
         AuthService auth = new AuthService();
-        auth.registrarUsuario("Ana Perez", "ana@ucv.ve", "V-12345678", UserRole.ESTUDIANTE, "20-11111", "clave123");
+        auth.registrarUsuario("Ana Perez", "ana@ucv.ve", "V-12345678", "20-11111", "clave123");
         assertThrows(IllegalStateException.class, () -> auth.pagarTicketExtraurbano("ana@ucv.ve", "IT-1"));
         assertEquals(0, auth.consultarSaldo("ana@ucv.ve").compareTo(BigDecimal.ZERO));
     }

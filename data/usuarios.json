@@ -11,7 +11,7 @@
     "nombreCompleto": "Super Administrador",
     "email": "superadmin@ucv.ve",
     "cedula": "V-00000000",
-    "rol": "ADMINISTRADOR",
+    "rol": "SUPER_ADMIN",
     "carnet": "",
     "passwordHash": "D1HWyiDOShNX0D19ipm1gw==:xzuy6V2QSue+/q2TJr7FwRPDgiLqdn5RzDxWpQrHbCE="
   },
@@ -29,7 +29,8 @@
     "cedula": "V-25000000",
     "rol": "ESTUDIANTE",
     "carnet": "20-12345",
-    "passwordHash": "ueXzY369VGZ6BpkcOSSwTQ==:OyM/1gxC6nZxcr1c2UalCQiOUdCYvCD66SHTMKhbUXk="
+    "passwordHash": "ueXzY369VGZ6BpkcOSSwTQ==:OyM/1gxC6nZxcr1c2UalCQiOUdCYvCD66SHTMKhbUXk=",
+    "saldo": "25.00"
   },
   {
     "nombreCompleto": "Carlos Gomez",

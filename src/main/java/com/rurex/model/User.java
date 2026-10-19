@@ -32,6 +32,7 @@ public class User {
     public String getEmail() { return email; }
     public String getCedula() { return cedula; }
     public UserRole getRol() { return rol; }
+    public void setRol(UserRole rol) { this.rol = rol; }
     public String getCarnet() { return carnet; }
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }

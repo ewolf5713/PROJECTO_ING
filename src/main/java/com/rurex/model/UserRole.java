@@ -4,7 +4,8 @@ public enum UserRole {
     ESTUDIANTE("Estudiante"),
     EMPLEADO("Empleado"),
     ADMINISTRADOR("Administrador"),
-    CONDUCTOR("Conductor");
+    CONDUCTOR("Conductor"),
+    SUPER_ADMIN("Super Administrador");
 
     private final String label;
 

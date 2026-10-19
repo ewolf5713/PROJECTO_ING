@@ -26,7 +26,7 @@ Alcance del Incremento 1:
 
 | Modulo | Historias de usuario | Que hace |
 |---|---|---|
-| Acceso y Autenticacion | HU-001, HU-002 | Registro con password hasheado (PBKDF2) y login con panel segun rol: administrador, pasajero (estudiante o empleado) y conductor |
+| Acceso y Autenticacion | HU-001, HU-002 | Registro con password hasheado (PBKDF2) y login con panel segun rol: administrador, pasajero (estudiante o empleado) y conductor. El rol se asigna automaticamente al registrarse (carnet = estudiante, sin carnet = empleado) y solo el Super Administrador puede cambiarlo desde "Usuarios" |
 | Gestion de Flota | HU-022, HU-023, HU-024 | Registro de unidades con placa unica, listado con filtro por estado operativo y edicion de modelo, capacidad y estado |
 | Control de Itinerarios | HU-010 | Crear y eliminar itinerarios con unidades activas, limite de cupos por capacidad y bloqueo de cruces de horario por unidad o conductor |
 

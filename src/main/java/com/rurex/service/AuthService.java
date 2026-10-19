@@ -55,7 +55,7 @@ public class AuthService {
         }
     }
 
-    public synchronized void registrarUsuario(String nombreCompleto, String email, String cedula, UserRole rol, String carnet, String password) {
+    public synchronized void registrarUsuario(String nombreCompleto, String email, String cedula, String carnet, String password) {
         validarCampos(nombreCompleto, email, cedula, password);
 
         String emailNorm = email.trim().toLowerCase();
@@ -69,7 +69,8 @@ public class AuthService {
         }
 
         String passHash = hashPassword(password);
-        User nuevo = new User(nombreCompleto.trim(), emailNorm, cedulaNorm, rol != null ? rol : UserRole.ESTUDIANTE, carnet, passHash);
+        UserRole rol = carnet != null && !carnet.isBlank() ? UserRole.ESTUDIANTE : UserRole.EMPLEADO;
+        User nuevo = new User(nombreCompleto.trim(), emailNorm, cedulaNorm, rol, carnet, passHash);
 
         usuariosPorEmail.put(emailNorm, nuevo);
         usuariosPorCedula.put(cedulaNorm, nuevo);
@@ -97,11 +98,22 @@ public class AuthService {
     }
 
     public boolean esSuperAdmin(User user) {
-        if (user == null) {
-            return false;
+        return user != null && user.getRol() == UserRole.SUPER_ADMIN;
+    }
+
+    public synchronized void cambiarRol(User actor, String cedula, UserRole nuevoRol) {
+        if (!esSuperAdmin(actor)) {
+            throw new IllegalArgumentException("Solo el Super Administrador puede asignar roles.");
         }
-        return SUPERADMIN_EMAIL.equalsIgnoreCase(user.getEmail())
-                || SUPERADMIN_CEDULA.equalsIgnoreCase(user.getCedula());
+        User usuario = usuariosPorCedula.get(cedula == null ? "" : cedula.trim().toUpperCase());
+        if (usuario == null) {
+            throw new IllegalArgumentException("[USUARIO NO ENCONTRADO]");
+        }
+        if (nuevoRol == null || nuevoRol == UserRole.SUPER_ADMIN || esSuperAdmin(usuario)) {
+            throw new IllegalArgumentException("No se puede modificar el rol de Super Administrador.");
+        }
+        usuario.setRol(nuevoRol);
+        notificarCambio();
     }
 
     public synchronized List<User> getUsuarios() {
@@ -125,8 +137,11 @@ public class AuthService {
     }
 
     private void asegurarSuperAdmin() {
-        if (!usuariosPorEmail.containsKey(SUPERADMIN_EMAIL)) {
-            User superAdmin = new User("Super Administrador", SUPERADMIN_EMAIL, SUPERADMIN_CEDULA, UserRole.ADMINISTRADOR, "", hashPassword("Superadmin123"));
+        User existente = usuariosPorEmail.get(SUPERADMIN_EMAIL);
+        if (existente != null) {
+            existente.setRol(UserRole.SUPER_ADMIN);
+        } else {
+            User superAdmin = new User("Super Administrador", SUPERADMIN_EMAIL, SUPERADMIN_CEDULA, UserRole.SUPER_ADMIN, "", hashPassword("Superadmin123"));
             usuariosPorEmail.put(SUPERADMIN_EMAIL, superAdmin);
             usuariosPorCedula.put(SUPERADMIN_CEDULA, superAdmin);
         }

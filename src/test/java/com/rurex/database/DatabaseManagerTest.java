@@ -45,7 +45,7 @@ public class DatabaseManagerTest {
 
         assertTrue(Files.exists(tempDir.resolve("usuarios.json")));
 
-        authService.registrarUsuario("Pedro Perez", "pedro@ucv.ve", "V-12345678", UserRole.ESTUDIANTE, "21-0001", "ClaveSegura123");
+        authService.registrarUsuario("Pedro Perez", "pedro@ucv.ve", "V-12345678", "21-0001", "ClaveSegura123");
 
         AuthService authService2 = new AuthService(dbManager.getUserDatabase());
         assertTrue(authService2.autenticar("pedro@ucv.ve", "ClaveSegura123").isPresent());
