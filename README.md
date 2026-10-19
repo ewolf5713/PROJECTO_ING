@@ -98,6 +98,8 @@ Al registrarse: con carnet → Estudiante; correo `ucv.ve` (o subdominio) → Em
 
 Tarifas (HU-011/012): el administrador fija la Tarifa Base Municipal en la sección **Tarifas**. El ticket extraurbano cobra del monedero según el rol: Estudiante 10–20 % (por defecto 15 %), Empleado/Profesor 30–60 % (por defecto 45 %), Público General 100 % (base por defecto Bs. 10.00, guardada en `data/tarifas.json`).
 
+Ticket digital (HU-016): al pagar, el pasajero recibe un QR con el ID del ticket, su cédula y el itinerario cifrados con AES-GCM (clave local en `data/clave-tickets.key`, fuera de git); el conductor lo pega en **Validar Ticket** y queda marcado como utilizado (`data/tickets.json`).
+
 Los datos se guardan y sincronizan en tiempo real en archivos JSON dentro del directorio `data/`.
 
 ## Estructura del proyecto

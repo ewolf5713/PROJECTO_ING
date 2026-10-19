@@ -1,6 +1,7 @@
 package com.rurex.service;
 
 import com.rurex.database.UserDatabase;
+import com.rurex.model.Ticket;
 import com.rurex.model.User;
 import com.rurex.model.UserRole;
 
@@ -25,8 +26,12 @@ public class AuthService {
     private final Map<String, User> usuariosPorEmail = new HashMap<>();
     private final Map<String, User> usuariosPorCedula = new HashMap<>();
     private UserDatabase database;
-    private final Set<String> ticketsPagados = new HashSet<>();
     private final TarifaService tarifaService = new TarifaService();
+    private final TicketService ticketService = new TicketService();
+
+    public TicketService getTicketService() {
+        return ticketService;
+    }
 
     public TarifaService getTarifaService() {
         return tarifaService;
@@ -161,7 +166,7 @@ public class AuthService {
         return usuario.getSaldo();
     }
 
-    public synchronized String pagarTicketExtraurbano(String email, String itinerarioId) {
+    public synchronized Ticket pagarTicketExtraurbano(String email, String itinerarioId) {
     User usuario = usuariosPorEmail.get(email == null ? "" : email.trim().toLowerCase());
     if (usuario == null) {
         throw new IllegalArgumentException("Usuario no encontrado.");
@@ -172,8 +177,7 @@ public class AuthService {
     if (!usuario.tieneMonedero()) {
         throw new IllegalStateException("Este tipo de usuario no tiene monedero.");
     }
-    String clave = usuario.getEmail() + "|" + itinerarioId;
-    if (ticketsPagados.contains(clave)) {
+    if (ticketService.ticketDe(usuario, itinerarioId).isPresent()) {
         throw new IllegalStateException("Ya pagaste el ticket de este itinerario.");
     }
     BigDecimal precio = tarifaService.precio(usuario.getRol());
@@ -182,9 +186,8 @@ public class AuthService {
     }
 
     usuario.debitar(precio);
-    ticketsPagados.add(clave);
     notificarCambio();
-    return "TK-" + (100000 + new SecureRandom().nextInt(900000));
+    return ticketService.emitir(usuario, itinerarioId, precio);
 }
 
     public synchronized String recargarMonedero(String email, String banco, String telefono, String cedula, String referencia, BigDecimal monto) {

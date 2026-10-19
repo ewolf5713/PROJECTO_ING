@@ -21,6 +21,20 @@ import java.util.function.Consumer;
 
 public class Estilos {
 
+    public static JLabel qr(String contenido, int tamano) {
+        try {
+            com.google.zxing.common.BitMatrix m = new com.google.zxing.qrcode.QRCodeWriter()
+                    .encode(contenido, com.google.zxing.BarcodeFormat.QR_CODE, tamano, tamano);
+            java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(m.getWidth(), m.getHeight(), java.awt.image.BufferedImage.TYPE_INT_RGB);
+            for (int x = 0; x < m.getWidth(); x++)
+                for (int y = 0; y < m.getHeight(); y++)
+                    img.setRGB(x, y, m.get(x, y) ? 0x000000 : 0xFFFFFF);
+            return new JLabel(new ImageIcon(img));
+        } catch (com.google.zxing.WriterException e) {
+            return new JLabel(contenido);
+        }
+    }
+
     public static final Color VERDE = new Color(0x1B, 0x87, 0x54);
     private static final Color GRIS_DESHABILITADO = new Color(0x4B, 0x55, 0x63);
     public static final Color VERDE_CLARO = new Color(0xE6, 0xF4, 0xEC);
