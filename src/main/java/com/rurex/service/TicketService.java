@@ -67,7 +67,7 @@ public class TicketService {
         }
     }
 
-    public synchronized Ticket validar(String codigo, List<String> itinerariosDelConductor) {
+    private Ticket descifrar(String codigo) {
         String[] p;
         try {
             byte[] datos = Base64.getUrlDecoder().decode(codigo.trim());
@@ -77,9 +77,13 @@ public class TicketService {
         } catch (Exception e) {
             throw new IllegalArgumentException("Ticket inválido.");
         }
-        Ticket t = tickets.stream()
+        return tickets.stream()
                 .filter(x -> p.length == 3 && x.getId().equals(p[0]) && x.getCedula().equals(p[1]) && x.getItinerarioId().equals(p[2]))
                 .findFirst().orElseThrow(() -> new IllegalArgumentException("Ticket inválido."));
+    }
+
+    public synchronized Ticket validar(String codigo, List<String> itinerariosDelConductor) {
+        Ticket t = tickets.stream().filter(x -> x.getId().equalsIgnoreCase(codigo.trim())).findFirst().orElseGet(() -> descifrar(codigo));
         if (t.isUsado()) throw new IllegalStateException("Ticket ya utilizado.");
         if (itinerariosDelConductor == null || !itinerariosDelConductor.contains(t.getItinerarioId())) {
             throw new IllegalArgumentException("El ticket no corresponde a sus itinerarios.");

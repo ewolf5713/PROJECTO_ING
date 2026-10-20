@@ -159,7 +159,7 @@ public class ConductorDashboardView extends JFrame {
     }
 
     private JPanel crearPanelValidar() {
-        JTextField txtCodigo = Estilos.campo("Pegue o escanee el código del ticket");
+        JTextField txtCodigo = Estilos.campo("ID del ticket (TK-XXXXXXXX) o código del QR");
         txtCodigo.setPreferredSize(new Dimension(520, 34));
         JButton btnValidar = Estilos.botonPrimario("Validar");
         btnValidar.addActionListener(e -> validarTicket(txtCodigo.getText()));

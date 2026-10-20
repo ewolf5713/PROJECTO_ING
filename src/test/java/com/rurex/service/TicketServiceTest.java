@@ -28,6 +28,15 @@ class TicketServiceTest {
     }
 
     @Test
+    void validarPorIdDelTicket() {
+        Ticket t = tickets.emitir(estudiante, "IT-1", BigDecimal.ONE);
+        assertSame(t, tickets.validar("  " + t.getId().toLowerCase() + " ", List.of("IT-1")));
+        assertTrue(t.isUsado());
+        assertThrows(IllegalStateException.class, () -> tickets.validar(t.getId(), List.of("IT-1")));
+        assertThrows(IllegalArgumentException.class, () -> tickets.validar("TK-NOEXISTE", List.of("IT-1")));
+    }
+
+    @Test
     void codigoAlteradoEsInvalido() {
         String codigo = tickets.codigo(tickets.emitir(estudiante, "IT-1", BigDecimal.ONE));
         char c = codigo.charAt(20);
